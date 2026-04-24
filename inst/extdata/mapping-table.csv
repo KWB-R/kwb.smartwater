@@ -1,0 +1,11 @@
+"qsimVis_ID","verknet_BWaStrIdNr","Bezeichnung","model_IDs","size_type"
+"BSK",5401,"Berlin-Spandauer (Schifffahrts)kanal","BSSK",1
+"CVK",5404,"Charlottenburger Verbindungskanal (zur Spree)","CVK",1
+"HOW",5801,"Havel-Oder-Wasserstraße","HOW",1
+"LWK",6504,"Landwehrkanal","Lwk,LwKo",1
+"Neukoellner_Schifffahrtskanal",NA,"Neuköllner Schifffahrts-Kanal","NSK",1
+"Panke",NA,"Panke","Pa,Pa2,VB",2
+"SOW",6501,"Spree-Oder-Wasserstraße","OSK,SOW,SedS",1
+"SpK",6507,"Spreekanal","SpK,Spk",1
+"UHW",6701,"Untere Havel-Wasserstraße (Spandau - Plaue)","UHW",1
+"WHK",5403,"Westhafenkanal","WHK",1

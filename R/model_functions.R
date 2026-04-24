@@ -1,3 +1,50 @@
+get_models <- function() {
+  model_files <- c(
+    negative_deviation = "model_negative-deviation.csv",
+    critical_events = "model_events-critical.csv",
+    critical_hours = "model_hours-critical.csv",
+    unpleasant_hours = "model_hours-unpleasant.csv"
+  )
+  model_dir <- system.file(
+    "extdata", 
+    "models", 
+    package = "kwb.smartwater", 
+    mustWork = TRUE
+  )
+  stats::setNames(
+    lapply(file.path(model_dir, model_files), FUN = read_model),
+    names(model_files)
+  )
+}
+
+read_rivers <- function(file) {
+  df <- utils::read.csv(file)
+  river_dfs <- lapply(split(df, df[[1L]]), function(x) {
+    x <- x[-1L]
+    rownames(x) <- NULL
+    x
+  })
+  # Bring list elements in original order
+  river_dfs[unique(df$river)]
+}
+
+read_site_info <- function(file) {
+  df <- utils::read.csv(file)
+  rownames(df) <- df[[1L]]
+  df[-1L]
+}
+
+read_model <- function(file) {
+  df <- utils::read.csv(file)
+  model <- lapply(split(df, seq_len(nrow(df))), function(x) unlist(x[-1L]))
+  stats::setNames(model, df[[1L]])
+}
+
+MisaColor <- stats::setNames(
+  c("#17585E", "#99B579", "#F5A200", "#E98627", "#D95B3E", "#C71647"),
+  c("perfect", "good", "acceptable", "bad", "critical", "very_serious") 
+)
+
 defHourModel <- function(reg_model, surface_reduction){
   if(surface_reduction >= reg_model["A"] & !is.na(reg_model["A"])){
     0
@@ -22,16 +69,20 @@ prepare_rivers <- function(rivers = NULL, df_in = NULL, mappingTable = NULL){
   check_arg_not_null(mappingTable)
   
   rivers_ext <- lapply(
-    X = names(rivers), FUN = extend_riverTable,
+    X = names(rivers), 
+    FUN = extend_riverTable,
     rivers = rivers,
     aggregated_data = df_in,
     varName = "value",
-    NA_processing = "interpolation")
+    NA_processing = "interpolation"
+  )
   names(rivers_ext) <- names(rivers)
   rivers_ext <- lapply(names(rivers), function(r){
-    list("data" = rivers_ext[[r]],
-         "pp" = list( # list of plot properties
-           "river_lwd" = mappingTable$size_type[mappingTable$qsimVis_ID == r])
+    list(
+      "data" = rivers_ext[[r]],
+      "pp" = list( # list of plot properties
+        "river_lwd" = mappingTable$size_type[mappingTable$qsimVis_ID == r]
+      )
     )
   })
   names(rivers_ext) <- names(rivers)
@@ -42,21 +93,21 @@ extend_riverTable <- function(
     rivers, river_id, aggregated_data, varName,
     NA_processing = "interpolation"
 ){
-
+  
   if(!(varName %in% colnames(aggregated_data))){
     stop(varName, " is no column in 'aggregated_data'")
   }
   river_table <- rivers[[river_id]]
   # river table needs to be ordered by river km
   river_table <- river_table[order(river_table$km),]
-
-
-
+  
+  
+  
   river_table[["value"]] <- NA
   # filter results for river id
   data_table <- aggregated_data[aggregated_data$qsimVis_ID == river_id &
                                   !is.na(aggregated_data$qsimVis_ID),]
-
+  
   if(nrow(data_table) > 0L & any(!is.na(data_table[[varName]]))){
     # apply results to closest verknet node, if not already defined
     km_verknet <- river_table$km
@@ -72,7 +123,7 @@ extend_riverTable <- function(
         river_table$value[single_node_match[1]] <- data_table[[varName]][i]
       }
     }
-
+    
     # if the last and the first verknet node are not defined, use the closest
     # data node, depending on distance
     tolerable_distance <- 0.5 # km
@@ -82,7 +133,7 @@ extend_riverTable <- function(
         river_table$value[1] <- river_table$value[first_value]
       }
     }
-
+    
     l <- nrow(river_table)
     if(is.na(river_table$value[l])){
       last_value <- rev(which(!is.na(river_table$value)))[1]
@@ -90,7 +141,7 @@ extend_riverTable <- function(
         river_table$value[l] <- river_table$value[last_value]
       }
     }
-
+    
     river_table$value <-
       if(NA_processing == "interpolation"){
         interpolate_multipleNA(
@@ -126,12 +177,12 @@ value_to_classes <- function(
     )
   })
   names(output_list) <- names(river_list)
-
+  
   colorVector <- classes_to_color(
     class_levels = levels(output_list[[1]]$data$value_class),
     colorVector = colorVector
   )
-
+  
   output_list2 <- lapply(names(output_list), function(N){
     r <- output_list[[N]]
     x <- r$data
@@ -140,7 +191,7 @@ value_to_classes <- function(
          "pp" = r$pp)
   })
   names(output_list2) <- names(river_list)
-
+  
   output_list2
 }
 
@@ -176,15 +227,15 @@ classes_to_color <- function(class_levels, colorVector = NULL){
 plot_empty_map <- function(){
   xlim <- c(13.18, 13.47)
   ylim <- c(52.45, 52.57)
-
+  
   # plotDim <- getDimensions(xlim = xlim, ylim = ylim, width = 10)
   plotDim <- c(10, 6.789581)
   width_factor <- plotDim[1]/plotDim[2]
   xpdDim <- 6
   grDevices::dev.new(noRStudioGD = TRUE, height = 6, width = 6 * width_factor,
-          units = "in")
+                     units = "in")
   graphics::par(mar = c(xpdDim / 2, 0.2, xpdDim / 2 , xpdDim * width_factor - 0.2))
-
+  
   plot(x = 0, y = 0,
        xaxt = "n", yaxt = "n", type = "n",
        xaxs = "i", yaxs = "i",
@@ -237,12 +288,12 @@ add_coloredRivers <- function(
 ){
   for(j in seq_along(ext_rivers)){
     graphics::lines(x = ext_rivers[[j]]$data$x, y = ext_rivers[[j]]$data$y,
-          col = "steelblue", lwd = ext_rivers[[j]]$pp$river_lwd)
+                    col = "steelblue", lwd = ext_rivers[[j]]$pp$river_lwd)
     for(i in seq_len(nrow(ext_rivers[[j]]$data) - 1)){
       graphics::lines(x = ext_rivers[[j]]$data$x[i:(i+1)],
-            y = ext_rivers[[j]]$data$y[i:(i+1)],
-            col = as.character(ext_rivers[[j]]$data$color[i+1]),
-            lwd = 4 / ext_rivers[[j]]$pp$river_lwd)
+                      y = ext_rivers[[j]]$data$y[i:(i+1)],
+                      col = as.character(ext_rivers[[j]]$data$color[i+1]),
+                      lwd = 4 / ext_rivers[[j]]$pp$river_lwd)
     }
   }
 }
@@ -250,7 +301,7 @@ add_coloredRivers <- function(
 add_river_legend <- function(
     ext_rivers, LegendTitle = "", LegendLocation = "right", ...
 ){
-
+  
   if(LegendLocation == "top"){
     lx <- mean(graphics::par("usr")[1:2])
     ly <- graphics::par("usr")[4]
@@ -266,23 +317,23 @@ add_river_legend <- function(
       replacement = '\\1\n',
       x = LegendTitle)
   }
-
+  
   x <- ext_rivers[[1]]$data
   data_type <- if("value_class" %in% colnames(x)){
     "categorical"
   } else {
     "numerical"
   }
-
+  
   if(data_type == "categorical"){
     cs <- levels(x$value_class)
     cc <- levels(x$color)
-
+    
     nc <- length(cs)
     if(grepl(pattern = "^\\(", x = cs[1])){
       cs[1] <- paste0("> ", strsplit(x = cs[1], split = ",")[[1]][-1])
     }
-
+    
     if(grepl(pattern = "\\)$", x = cs[nc])){
       cs[nc] <- paste0(strsplit(x = cs[nc], split = ",")[[1]][1])
     }
@@ -295,9 +346,9 @@ add_river_legend <- function(
     cs <- gsub(pattern = " - Inf$", replacement = "", x = cs)
     l_content <- cs
     graphics::legend(x = lx, y = ly, legend = cs, col = cc, lwd = 6,
-           bg= "white", bty = "n", title = LegendTitle,
-           xpd = T, xjust = xadj, yjust = 0, horiz = hor, ...)
-
+                     bg= "white", bty = "n", title = LegendTitle,
+                     xpd = T, xjust = xadj, yjust = 0, horiz = hor, ...)
+    
   }
 }
 
@@ -385,3 +436,59 @@ same_inarow <- function(v){
   )
 }
 
+plot_into_png <- function(
+    fn, width_factor, xpdDim, xlim, ylim, rivers_p2, LegendTitle, 
+    districPolygons, waterPolygons
+) {
+  
+  grDevices::png(
+    fn, 
+    width = 6 * width_factor, 
+    height = 6 , 
+    units = "in", 
+    res = 600
+  )
+  
+  graphics::par(mar = c(
+    xpdDim / 2, 
+    0.2, 
+    xpdDim / 2 , 
+    xpdDim * width_factor - 0.2
+  ))
+  
+  plot(
+    x = 0, 
+    y = 0,
+    xaxt = "n", 
+    yaxt = "n", 
+    type = "n",
+    xaxs = "i", 
+    yaxs = "i",
+    xlab = "", 
+    ylab = "",
+    xlim = xlim, 
+    ylim = ylim
+  )
+  
+  # qsimVis::add_districts()
+  # qsimVis::Berlin_add_boarder()
+  
+  Berlin_and_waterbodies(
+    water_color = "lightblue", 
+    city_color = "gray60", 
+    districPolygons = districPolygons, 
+    waterPolygons = waterPolygons
+  )
+  
+  # Add colored Rivers
+  add_coloredRivers(ext_rivers = rivers_p2)
+  
+  add_river_legend(
+    ext_rivers = rivers_p2,
+    LegendTitle = LegendTitle,
+    LegendLocation = "top", 
+    cex = 0.8
+  )
+  
+  invisible(grDevices::dev.off())
+}
