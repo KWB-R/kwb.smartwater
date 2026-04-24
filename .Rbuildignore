@@ -1,0 +1,13 @@
+^\.here$
+^LICENSE\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^codecov\.yml$
+^index\.md$
+^README\.md$
+^kwb\.smartwater\.Rproj$
+^\.Rhistory$
+^\.RData$
+^\.Rproj\.user$
