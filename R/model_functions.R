@@ -15,7 +15,12 @@ defEventModel <- function(reg_model, surface_reduction){
 }
 
 # function based on qsimVis, changed for stand-alone use
-prepare_rivers <- function(){
+prepare_rivers <- function(rivers = NULL, df_in = NULL, mappingTable = NULL){
+  check_arg_not_null <- get_arg_not_null_checker("prepare_rivers")
+  check_arg_not_null(rivers)
+  check_arg_not_null(df_in)
+  check_arg_not_null(mappingTable)
+  
   rivers_ext <- lapply(
     X = names(rivers), FUN = extend_riverTable,
     rivers = rivers,
@@ -140,19 +145,19 @@ value_to_classes <- function(
 }
 
 classes_to_color <- function(class_levels, colorVector = NULL){
+  check_arg_not_null <- get_arg_not_null_checker("classes_to_color")
+  check_arg_not_null(colorVector)
+  
   nClasses <- length(class_levels)
-  if(is.null(colorVector)){
-    colorVector <- MisaColor
-  }
   
   while(nClasses > length(colorVector)){
-    ct <- col2rgb(colorVector)
+    ct <- grDevices::col2rgb(colorVector)
     ct2 <- matrix((ct[,-ncol(ct)] + ct[,-1]) / 2, ncol = ncol(ct) -1)
     ct <- cbind(ct[,1], matrix(sapply(2:ncol(ct), function(i){
       cbind(ct2[,i-1], ct[,i])
     }), nrow = 3))
     colorVector <- apply(ct, 2, function(x){
-      rgb(red = x[1], green = x[2], blue = x[3], maxColorValue = 255)
+      grDevices::rgb(red = x[1], green = x[2], blue = x[3], maxColorValue = 255)
     })
   }
   
@@ -176,9 +181,9 @@ plot_empty_map <- function(){
   plotDim <- c(10, 6.789581)
   width_factor <- plotDim[1]/plotDim[2]
   xpdDim <- 6
-  dev.new(noRStudioGD = TRUE, height = 6, width = 6 * width_factor,
+  grDevices::dev.new(noRStudioGD = TRUE, height = 6, width = 6 * width_factor,
           units = "in")
-  par(mar = c(xpdDim / 2, 0.2, xpdDim / 2 , xpdDim * width_factor - 0.2))
+  graphics::par(mar = c(xpdDim / 2, 0.2, xpdDim / 2 , xpdDim * width_factor - 0.2))
 
   plot(x = 0, y = 0,
        xaxt = "n", yaxt = "n", type = "n",
@@ -187,10 +192,29 @@ plot_empty_map <- function(){
        xlim = xlim, ylim = ylim)
 }
 
+get_arg_not_null_checker <- function(fun_name) {
+  function(arg) {
+    if (is.null(arg)) {
+      stop(sprintf(
+        "Please set argument '%s' in call to %s()",
+        deparse(substitute(arg)), fun_name
+      ))
+    }
+  }
+}
 
-Berlin_and_waterbodies <- function(water_color = "lightblue", city_color = "gray60"){
+Berlin_and_waterbodies <- function(
+    water_color = "lightblue", 
+    city_color = "gray60",
+    districPolygons = NULL,
+    waterPolygons = NULL
+){
+  check_arg_not_null <- get_arg_not_null_checker("Berlin_and_waterbodies")
+  check_arg_not_null(districPolygons)
+  check_arg_not_null(waterPolygons)
+  
   for(i in seq_along(districPolygons[[1]])){
-    polygon(
+    graphics::polygon(
       x = districPolygons[[1]][[i]][,1],
       y = districPolygons[[1]][[i]][,2],
       col = city_color, border = "black")
@@ -199,7 +223,7 @@ Berlin_and_waterbodies <- function(water_color = "lightblue", city_color = "gray
   for(poly in polies){
     poly_rows <-
       waterPolygons$gis_coordinates[waterPolygons$gis_coordinates[,"L2"] == poly,]
-    polygon(
+    graphics::polygon(
       x = poly_rows[,"X"],
       y = poly_rows[,"Y"],
       col = water_color, border = NA
@@ -212,10 +236,10 @@ add_coloredRivers <- function(
     ext_rivers
 ){
   for(j in seq_along(ext_rivers)){
-    lines(x = ext_rivers[[j]]$data$x, y = ext_rivers[[j]]$data$y,
+    graphics::lines(x = ext_rivers[[j]]$data$x, y = ext_rivers[[j]]$data$y,
           col = "steelblue", lwd = ext_rivers[[j]]$pp$river_lwd)
     for(i in seq_len(nrow(ext_rivers[[j]]$data) - 1)){
-      lines(x = ext_rivers[[j]]$data$x[i:(i+1)],
+      graphics::lines(x = ext_rivers[[j]]$data$x[i:(i+1)],
             y = ext_rivers[[j]]$data$y[i:(i+1)],
             col = as.character(ext_rivers[[j]]$data$color[i+1]),
             lwd = 4 / ext_rivers[[j]]$pp$river_lwd)
@@ -228,13 +252,13 @@ add_river_legend <- function(
 ){
 
   if(LegendLocation == "top"){
-    lx <- mean(par("usr")[1:2])
-    ly <- par("usr")[4]
+    lx <- mean(graphics::par("usr")[1:2])
+    ly <- graphics::par("usr")[4]
     xadj <- 0.5
     hor <- TRUE
   } else if(LegendLocation == "right"){
-    lx <- par("usr")[2]
-    ly <- par("usr")[3]
+    lx <- graphics::par("usr")[2]
+    ly <- graphics::par("usr")[3]
     xadj <- 0
     hor <- FALSE
     LegendTitle <- gsub(
@@ -270,7 +294,7 @@ add_river_legend <- function(
     cs <- gsub(pattern = "^-Inf - ", replacement = "<= ", x = cs)
     cs <- gsub(pattern = " - Inf$", replacement = "", x = cs)
     l_content <- cs
-    legend(x = lx, y = ly, legend = cs, col = cc, lwd = 6,
+    graphics::legend(x = lx, y = ly, legend = cs, col = cc, lwd = 6,
            bg= "white", bty = "n", title = LegendTitle,
            xpd = T, xjust = xadj, yjust = 0, horiz = hor, ...)
 
