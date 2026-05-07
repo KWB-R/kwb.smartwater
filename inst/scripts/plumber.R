@@ -2,7 +2,9 @@
 #* Get one block (columns as expected by kwb.rabimo) for testing
 function()
 {
-  kwb.smartwater::get_test_block()
+  to_plumber_response(try({
+    kwb.smartwater::get_test_block()
+  }))
 }
 
 #* @post /rabimo_block_to_partial_areas_m2
@@ -10,7 +12,9 @@ function()
 #* Convert R-ABIMO-block to partial areas given in m2
 function(block)
 {
-  kwb.smartwater::rabimo_block_to_partial_areas_m2(block)
+  to_plumber_response(try({
+    kwb.smartwater::rabimo_block_to_partial_areas_m2(block)
+  }))
 }
 
 #* @get /get_test_partial_areas
@@ -18,8 +22,10 @@ function(block)
 #* Returns the same as /rabimo_block_to_partial_areas_m2 when being given the response of /get_test_block
 function()
 {
-  block <- kwb.smartwater::get_test_block()
-  kwb.smartwater::rabimo_block_to_partial_areas_m2(block)
+  to_plumber_response(try({
+    block <- kwb.smartwater::get_test_block()
+    kwb.smartwater::rabimo_block_to_partial_areas_m2(block)
+  }))
 }
 
 #* @post /get_available_m2
@@ -28,7 +34,9 @@ function()
 #* New measures must not exceed these values
 function(areas)
 {
-  kwb.smartwater::get_available_m2(areas)
+  to_plumber_response(try({
+    kwb.smartwater::get_available_m2(areas)
+  }))
 }
 
 #* @post /apply_measure
@@ -37,19 +45,25 @@ function(areas)
 #* Apply a measure to a "state" of areas and return the updated state
 function(areas, measure)
 {
-  kwb.smartwater::apply_measure(areas, measure)
+  to_plumber_response(try({
+    kwb.smartwater::apply_measure(areas, measure)
+  }))
 }
 
 #* @get /get_test_measures
 #* Get a test "sequence" of measures
 function()
 {
-  kwb.smartwater::get_test_measures()
+  to_plumber_response(try({
+    kwb.smartwater::get_test_measures()
+  }))
 }
 
 #* @get /get_measure_names
 #* Get names of measures supported by kwb.smartwater
 function()
 {
-  kwb.smartwater::get_measure_names()
+  to_plumber_response(try({
+    kwb.smartwater::get_measure_names()
+  }))
 }

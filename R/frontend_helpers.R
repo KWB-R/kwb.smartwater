@@ -168,8 +168,28 @@ apply_measure <- function(areas, measure) {
 }
 
 #' Test the plumber API
+#' @param catch_errors whether or not to catch errors. If TRUE, errors are 
+#' caught and the result object is a list with elements "data" (containing the
+#' function result or NULL in case of an error) and "error" (containing the
+#' error message in case of an error and NULL otherwise)
 #' @export
-test_plumber_api <- function() {
+test_plumber_api <- function(catch_errors = FALSE) {
   plumber_file <- system.file("scripts/plumber.R", package = "kwb.smartwater")
-  plumber::pr_run(plumber::pr(plumber_file))
+  envir <- new.env(parent = .GlobalEnv)
+  assign(
+    x = "to_plumber_response", 
+    value = if (catch_errors) to_plumber_response else identity,
+    envir = envir
+  )
+  plumber::pr_run(plumber::pr(plumber_file, envir = envir))
+}
+
+#' Convert function result (may inherit from "try-error") to a response
+#' @param result result of calling a function within try()
+to_plumber_response <- function(result) {
+  failed <- inherits(result, "try-error")
+  list(
+    data = if (!failed) result,
+    error = if (failed) attr(result, "condition")$message
+  )
 }
