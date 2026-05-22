@@ -1,3 +1,6 @@
+#* @apiTitle kwb.smartwater API
+#* @apiDescription API for accessing the R-package kwb.smartwater
+
 #* @get /get_test_block
 #* Get one block (columns as expected by kwb.rabimo) for testing
 function()
@@ -7,9 +10,9 @@ function()
   }))
 }
 
-#* @post /rabimo_block_to_partial_areas_m2
-#* @param block:data.frame One R-ABIMO-Block, as e.g. returned by /get_test_block
 #* Convert R-ABIMO-block to partial areas given in m2
+#* @param block:data.frame One R-ABIMO-Block, as e.g. returned by /get_test_block
+#* @post /rabimo_block_to_partial_areas_m2
 function(block)
 {
   to_plumber_response(try({
@@ -41,10 +44,15 @@ function(areas)
 
 #* @post /apply_measure
 #* @param areas:data.frame Partial areas in m2, as e.g. returned by /get_test_partial_areas
-#* @param measure:list object with elements "name" and "area" (given im m2), a list of which is e.g. returned by /get_test_measures
+#* @param measure_name method name (one of those returned by /get_measure_names)
+#* @param measure_area:numeric area associated to the measure, given in m2
 #* Apply a measure to a "state" of areas and return the updated state
-function(areas, measure)
+function(areas, measure_name, measure_area)
 {
+  measure <- list(
+    name = measure_name, 
+    area = as.numeric(measure_area)
+  )
   to_plumber_response(try({
     kwb.smartwater::apply_measure(areas, measure)
   }))

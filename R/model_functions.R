@@ -17,8 +17,9 @@ get_models <- function() {
   )
 }
 
+#' @importFrom utils read.csv
 read_rivers <- function(file) {
-  df <- utils::read.csv(file)
+  df <- read.csv(file)
   river_dfs <- lapply(split(df, df[[1L]]), function(x) {
     x <- x[-1L]
     rownames(x) <- NULL
@@ -28,14 +29,16 @@ read_rivers <- function(file) {
   river_dfs[unique(df$river)]
 }
 
+#' @importFrom utils read.csv
 read_site_info <- function(file) {
-  df <- utils::read.csv(file)
+  df <- read.csv(file)
   rownames(df) <- df[[1L]]
   df[-1L]
 }
 
+#' @importFrom utils read.csv
 read_model <- function(file) {
-  df <- utils::read.csv(file)
+  df <- read.csv(file)
   model <- lapply(split(df, seq_len(nrow(df))), function(x) unlist(x[-1L]))
   stats::setNames(model, df[[1L]])
 }
@@ -45,7 +48,7 @@ MisaColor <- stats::setNames(
   c("perfect", "good", "acceptable", "bad", "critical", "very_serious") 
 )
 
-defHourModel <- function(reg_model, surface_reduction){
+defHourModel <- function(reg_model, surface_reduction) {
   if(surface_reduction >= reg_model["A"] & !is.na(reg_model["A"])){
     0
   } else {
@@ -62,7 +65,7 @@ defEventModel <- function(reg_model, surface_reduction){
 }
 
 # function based on qsimVis, changed for stand-alone use
-prepare_rivers <- function(rivers = NULL, df_in = NULL, mappingTable = NULL){
+prepare_rivers <- function(rivers = NULL, df_in = NULL, mappingTable = NULL) {
   check_arg_not_null <- get_arg_not_null_checker("prepare_rivers")
   check_arg_not_null(rivers)
   check_arg_not_null(df_in)
@@ -282,7 +285,6 @@ Berlin_and_waterbodies <- function(
   }
 }
 
-
 add_coloredRivers <- function(
     ext_rivers
 ){
@@ -298,18 +300,19 @@ add_coloredRivers <- function(
   }
 }
 
+#' @importFrom graphics par
 add_river_legend <- function(
     ext_rivers, LegendTitle = "", LegendLocation = "right", ...
 ){
   
-  if(LegendLocation == "top"){
-    lx <- mean(graphics::par("usr")[1:2])
-    ly <- graphics::par("usr")[4]
+  if (LegendLocation == "top"){
+    lx <- mean(par("usr")[1:2])
+    ly <- par("usr")[4]
     xadj <- 0.5
     hor <- TRUE
   } else if(LegendLocation == "right"){
-    lx <- graphics::par("usr")[2]
-    ly <- graphics::par("usr")[3]
+    lx <- par("usr")[2]
+    ly <- par("usr")[3]
     xadj <- 0
     hor <- FALSE
     LegendTitle <- gsub(
@@ -395,10 +398,7 @@ interpolate_multipleNA <- function(
          "NA's in total" =  sum(nas$repeats)))
 }
 
-
-insert_downstreamNA <- function(
-    data_vector
-){
+insert_downstreamNA <- function(data_vector) {
   nas <- is.na(data_vector)
   to_fill <- which(nas)
   by_using <- which(!nas)
@@ -412,7 +412,7 @@ insert_downstreamNA <- function(
   data_vector
 }
 
-same_inarow <- function(v){
+same_inarow <- function(v) {
   
   stopifnot(!anyNA(v))
   
@@ -437,24 +437,70 @@ same_inarow <- function(v){
 }
 
 plot_into_png <- function(
-    fn, width_factor, xpdDim, xlim, ylim, rivers_p2, LegendTitle, 
-    districPolygons, waterPolygons
-) {
-  
-  grDevices::png(
     fn, 
-    width = 6 * width_factor, 
-    height = 6 , 
-    units = "in", 
-    res = 600
+    width_factor = 10/6.789581, 
+    xpdDim = 6, 
+    xlim, 
+    ylim, 
+    rivers_p2, 
+    LegendTitle, 
+    districPolygons, 
+    waterPolygons
+) {
+  plot_into_png_generic(
+    filename = fn, 
+    png_args = list(
+      width = 6 * width_factor, 
+      height = 6 , 
+      units = "in", 
+      res = 600
+    ),
+    plot_fun = plot_rivers,
+    plot_fun_args = list(
+      ext_rivers = rivers_p2, 
+      LegendTitle = LegendTitle, 
+      xlim = xlim,
+      ylim = ylim,
+      districPolygons = districPolygons, 
+      waterPolygons = waterPolygons,
+      xpdDim = xpdDim, 
+      width_factor = width_factor
+    )
   )
-  
-  graphics::par(mar = c(
+}
+
+plot_into_png_generic <- function(
+    filename, 
+    png_args = list(), 
+    plot_fun, 
+    plot_fun_args = list()
+)
+{
+  do.call(grDevices::png, c(list(filename = filename), png_args))
+  on.exit(invisible(grDevices::dev.off()))
+  do.call(plot_fun, plot_fun_args)
+}
+
+#' @importFrom graphics par
+plot_rivers <- function(
+    ext_rivers, 
+    LegendTitle,
+    xlim,
+    ylim,
+    districPolygons = readRDS(package_file("extdata/data/districPolygons")), 
+    waterPolygons = readRDS(package_file("extdata/data/waterPolygons")), 
+    xpdDim = 6, 
+    width_factor = 10/6.789581
+)
+{
+  margins <- c(
     xpdDim / 2, 
     0.2, 
     xpdDim / 2 , 
     xpdDim * width_factor - 0.2
-  ))
+  )
+  old_par <- par(mar = margins)
+  on.exit(par(old_par))
   
   plot(
     x = 0, 
@@ -470,9 +516,6 @@ plot_into_png <- function(
     ylim = ylim
   )
   
-  # qsimVis::add_districts()
-  # qsimVis::Berlin_add_boarder()
-  
   Berlin_and_waterbodies(
     water_color = "lightblue", 
     city_color = "gray60", 
@@ -481,14 +524,18 @@ plot_into_png <- function(
   )
   
   # Add colored Rivers
-  add_coloredRivers(ext_rivers = rivers_p2)
+  add_coloredRivers(
+    ext_rivers = ext_rivers
+  )
   
   add_river_legend(
-    ext_rivers = rivers_p2,
+    ext_rivers = ext_rivers,
     LegendTitle = LegendTitle,
     LegendLocation = "top", 
     cex = 0.8
   )
-  
-  invisible(grDevices::dev.off())
+}
+
+package_file <- function(..., mustWork = TRUE) {
+  system.file(..., package = "kwb.smartwater", mustWork = mustWork)
 }
