@@ -487,8 +487,8 @@ plot_rivers <- function(
     LegendTitle,
     xlim,
     ylim,
-    districPolygons = readRDS(package_file("extdata/data/districPolygons")), 
-    waterPolygons = readRDS(package_file("extdata/data/waterPolygons")), 
+    districPolygons = read_district_polygons(), 
+    waterPolygons = read_water_polygons(), 
     xpdDim = 6, 
     width_factor = 10/6.789581
 )
@@ -538,4 +538,25 @@ plot_rivers <- function(
 
 package_file <- function(..., mustWork = TRUE) {
   system.file(..., package = "kwb.smartwater", mustWork = mustWork)
+}
+
+read_district_polygons <- function() {
+  #kwb.utils::assignPackageObjects("kwb.smartwater")
+  district_polygons <- readRDS(package_file("extdata/data/districPolygons"))
+  #writeLines(kwb.utils::objectToText(district_polygons), "./inst/extdata/data/districtPolygons.txt")
+  district_polygons_from_txt <- kwb.utils::textToObject(
+    readLines(package_file("extdata/data/districPolygons.txt"))
+  )
+  stopifnot(all.equal(district_polygons, district_polygons_from_txt))
+  district_polygons_from_txt
+}
+
+read_water_polygons <- function() {
+  water_polygons <- readRDS(package_file("extdata/data/waterPolygons"))
+  #writeLines(kwb.utils::objectToText(water_polygons), "./inst/extdata/data/waterPolygons.txt")
+  water_polygons_from_txt <- kwb.utils::textToObject(
+    readLines(package_file("extdata/data/waterPolygons.txt"))
+  )
+  stopifnot(all.equal(water_polygons, water_polygons_from_txt))
+  water_polygons_from_txt
 }
