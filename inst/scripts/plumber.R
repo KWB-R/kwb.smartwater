@@ -75,3 +75,20 @@ function()
     kwb.smartwater::get_measure_names()
   }))
 }
+
+# /plot_effect_of_disconnect ---------------------------------------------------
+
+#* Plot Effect of Disconnecting Surfaces
+#* @get /plot_effect_of_disconnect
+#* @param surface_reduction surface_reduction in percent
+#* @param type one of "critical_hours", "unpleasant_hours", "critical_events", "negative_deviation"
+#* @serializer contentType list(type="image/png")
+function(surface_reduction, type)
+{
+  file <- kwb.smartwater:::plot_effect_of_disconnect(
+    surface_reduction = as.numeric(surface_reduction), 
+    type = type, 
+    output_dir = tempdir()
+  )
+  readBin(file, "raw", n = file.info(file)$size)
+}

@@ -20,10 +20,15 @@ plot_effect_of_disconnect <- function(
     type = type, 
     width_factor = width_factor
   )
+
+  filename <- if (!is.null(output_dir) && dir.exists(output_dir)) {
+    file.path(output_dir, paste0(surface_reduction, "_", type, ".png"))
+  }
   
-  if (!is.null(output_dir) && dir.exists(output_dir)) {
+  if (!is.null(filename)) {
+    filename <- file.path(output_dir, paste0(surface_reduction, "_", type, ".png"))
     plot_into_png_generic(
-      filename = file.path(output_dir, paste0(surface_reduction, "_", type, ".png")), 
+      filename = filename, 
       png_args = list(
         width = 6 * width_factor, 
         height = 6 , 
@@ -36,6 +41,8 @@ plot_effect_of_disconnect <- function(
   } else {
     do.call(plot_rivers, plot_fun_args)
   }
+  
+  invisible(filename)
 }
 
 #' @importFrom utils read.csv
