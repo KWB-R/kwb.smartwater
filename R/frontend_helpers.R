@@ -66,9 +66,9 @@ get_test_measures <- function() {
 #' @export
 rabimo_block_to_partial_areas_m2 <- function(block) {
   total <- block$total_area
-  roof <- block$total_area * block$roof
+  roof <- total * block$roof
   pvd <- total * block$pvd
-  current <- list(
+  current <- data.frame(
     total = total,
     roof = roof,
     pvd = NA, # calculated from pvd_1, pvd_2, pvd_3, pvd_4, pvd_na
@@ -86,7 +86,7 @@ rabimo_block_to_partial_areas_m2 <- function(block) {
     to_inf_mulde_rigole = 0,
     to_retention = 0
   )
-  update_calculated_fields(areas = as.data.frame(current))
+  update_calculated_fields(areas = current)
 }
 
 update_calculated_fields <- function(areas) {
@@ -105,16 +105,17 @@ get_available_m2 <- function(areas) {
     areas, 
     roof - green_roof_ext - green_roof_int
   )
+  sealed <- areas$sealed
   data.frame(
     green_roof_ext = available_green_roof,
     green_roof_int = available_green_roof,
     unpaving = areas$pvd,
     # Everything of pvd that is not yet in surface class 4
     permeable_paving = with(areas, pvd - pvd_4),
-    to_inf_mulde = areas$sealed,
-    to_inf_rigole = areas$sealed,
-    to_inf_mulde_rigole = areas$sealed,
-    to_retention = areas$sealed
+    to_inf_mulde = sealed,
+    to_inf_rigole = sealed,
+    to_inf_mulde_rigole = sealed,
+    to_retention = sealed
   )
 }
 
@@ -128,13 +129,13 @@ get_available_m2 <- function(areas) {
 #'
 #' @export
 apply_measure <- function(areas, measure) {
-  measure_name <- measure$name
+  name <- measure$name
   
-  if (measure_name %in% c("green_roof_ext", "green_roof_int")) {
+  if (name %in% c("green_roof_ext", "green_roof_int")) {
     
-    areas[[measure_name]] <- areas[[measure_name]] + measure$area
+    areas[[name]] <- areas[[name]] + measure$area
     
-  } else if (measure_name == "unpaving") {
+  } else if (name == "unpaving") {
     
     new_pvd <- areas$pvd - measure$area
     scaling_factor <- new_pvd / areas$pvd
@@ -147,7 +148,7 @@ apply_measure <- function(areas, measure) {
     
     stopifnot(new_pvd == with(areas, pvd_1 + pvd_2 + pvd_3 + pvd_4 + pvd_na))
     
-  } else if (measure_name == "permeable_paving") {
+  } else if (name == "permeable_paving") {
     
     # increase pvd_4, take equally from pvd_1, pvd_2, pvd_3, pvd_na
     pvd_not_4 <- with(areas, pvd_1 + pvd_2 + pvd_3 + pvd_na)
@@ -161,7 +162,7 @@ apply_measure <- function(areas, measure) {
 
   } else {
     
-    stop(sprintf("Measure '%s' not supported!", measure_name))
+    stop(sprintf("Measure '%s' not supported!", name))
   }
   
   update_calculated_fields(areas)
