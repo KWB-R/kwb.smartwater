@@ -85,7 +85,7 @@ function()
 #* @serializer contentType list(type="image/png")
 function(surface_reduction, type)
 {
-  file <- kwb.smartwater:::plot_effect_of_disconnect(
+  file <- kwb.smartwater::plot_effect_of_disconnect(
     surface_reduction = as.numeric(surface_reduction), 
     type = type, 
     output_dir = tempdir()

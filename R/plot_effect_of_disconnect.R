@@ -1,3 +1,15 @@
+#' Plot Effect of Disconnecting Surfaces from Sewer System
+#' 
+#' @param surface_reduction reduction of connected surface in percent
+#' @param type one of "critical_hours", "unpleasant_hours", "critical_events",
+#'   "negative_deviation"
+#' @param output_dir if \code{NULL} (the default), the plot goes into the active
+#'   device, otherwise the plot is written to a png file within 
+#'   \code{output_dir} (must be an existing directory)
+#' @param width_factor width factor. Default: 10/6.789581
+#' @return path to created file (invisibly) if \code{output_dir} is not 
+#'   \code{NULL}, otherwise \code{NULL} (invisibly)
+#' @export
 plot_effect_of_disconnect <- function(
     surface_reduction, 
     type, 

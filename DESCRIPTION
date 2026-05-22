@@ -16,8 +16,10 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports: 
     plumber,
-    kwb.rabimo
+    kwb.rabimo,
+    kwb.utils
 Suggests: 
     covr
 Remotes:
-    github::kwb-r/kwb.rabimo
+    github::kwb-r/kwb.rabimo,
+    github::kwb-r/kwb.utils
