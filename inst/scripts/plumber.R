@@ -1,7 +1,52 @@
 #* @apiTitle kwb.smartwater API
 #* @apiDescription API for accessing the R-package kwb.smartwater
 
+################### plumber2 examples ###################
+
+#* Echo the parameter that was sent in
+#*
+#* @get /echo/<msg>
+#*
+#* @param msg:string The message to echo back.
+#*
+function(msg) {
+  list(
+    msg = paste0("The message is: '", msg, "'")
+  )
+}
+
+#* Plot out data from the palmer penguins dataset
+#*
+#* @get /plot
+#*
+#* @query spec:string If provided, filter the data to only this species
+#* (e.g. 'Adelie')
+#*
+#* @serializer png
+#*
+function(query) {
+  myData <- penguins
+  title <- "All Species"
+  
+  # Filter if the species was specified
+  if (!is.null(query$spec)){
+    title <- paste0("Only the '", query$spec, "' Species")
+    myData <- subset(myData, species == query$spec)
+  }
+  
+  plot(
+    myData$flipper_len,
+    myData$bill_len,
+    main=title,
+    xlab="Flipper Length (mm)",
+    ylab="Bill Length (mm)"
+  )
+}
+
+################### plumber ####################
+
 #* @get /get_test_block
+#* @serializer json list(always_decimal = TRUE)
 #* Get one block (columns as expected by kwb.rabimo) for testing
 function()
 {
@@ -91,4 +136,15 @@ function(surface_reduction, type)
     output_dir = tempdir()
   )
   readBin(file, "raw", n = file.info(file)$size)
+}
+
+#* @post /calculate_water_balance
+#* @param blocks:data.frame Array of block areas, each of which looks like the object returned by /get_test_block
+#* @param measures:data.frame Array of objects containing information about the planned measures in m2. Each object has a text field "code" (matching the code of the corresponding block area) and one numeric field per measure. The names of the measure-related field must correspond to the names returned by /get_measure_names.
+#* Run R-Abimo for a given set of block areas and a given set of corresponding measures.
+function(blocks, measures)
+{
+  to_plumber_response(try({
+    kwb.smartwater::calculate_water_balance(blocks, measure_related_areas)
+  }))
 }
