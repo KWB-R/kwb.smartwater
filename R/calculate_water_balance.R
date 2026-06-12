@@ -1,0 +1,19 @@
+#' Calculate Water Balance for Given Block Areas and Measures
+
+#' @param blocks data.frame as returned by \code{\link{get_test_block}}
+#' @param measures data.frame containing information about the planned measures
+#'   in m2. Each row refers to a block area, linked by the text field
+#'   \code{code}. There is one numeric field per measure. The names of the
+#'   measure-related fields must correspond to the names returned by
+#'   \code{\link{get_measure_names}}.
+#' @export
+calculate_water_balance <- function(blocks, measures) {
+  
+  # kwb.rabimo is strict about data types. Therefore, convert data types as
+  # necessary
+  blocks <- kwb.rabimo:::check_or_convert_data_types(blocks, convert = TRUE)
+  
+  # TODO: modify the blocks according to the measures
+  config <- kwb.rabimo:::reconfigure(kwb.rabimo::rabimo_inputs_2025$config)
+  kwb.rabimo::run_rabimo(blocks, config)
+}
