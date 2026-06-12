@@ -13,9 +13,9 @@ URL: https://github.com/KWB-R/kwb.smartwater
 BugReports: https://github.com/KWB-R/kwb.smartwater/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Imports: 
     plumber,
+    plumber2,
     kwb.rabimo,
     kwb.utils
 Suggests: 
@@ -23,3 +23,4 @@ Suggests:
 Remotes:
     github::kwb-r/kwb.rabimo,
     github::kwb-r/kwb.utils
+Config/roxygen2/version: 8.0.0

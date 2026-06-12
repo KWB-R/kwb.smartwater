@@ -4,13 +4,16 @@
 \alias{test_plumber_api}
 \title{Test the plumber API}
 \usage{
-test_plumber_api(catch_errors = FALSE)
+test_plumber_api(catch_errors = FALSE, use_plumber2 = TRUE)
 }
 \arguments{
 \item{catch_errors}{whether or not to catch errors. If TRUE, errors are
 caught and the result object is a list with elements "data" (containing the
 function result or NULL in case of an error) and "error" (containing the
 error message in case of an error and NULL otherwise)}
+
+\item{use_plumber2}{if \code{TRUE}, the plumber2 package is used, otherwise
+the plumber package}
 }
 \description{
 Test the plumber API

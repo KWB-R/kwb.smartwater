@@ -169,20 +169,27 @@ apply_measure <- function(areas, measure) {
 }
 
 #' Test the plumber API
-#' @param catch_errors whether or not to catch errors. If TRUE, errors are 
-#' caught and the result object is a list with elements "data" (containing the
-#' function result or NULL in case of an error) and "error" (containing the
-#' error message in case of an error and NULL otherwise)
+#' @param catch_errors whether or not to catch errors. If TRUE, errors are
+#'   caught and the result object is a list with elements "data" (containing the
+#'   function result or NULL in case of an error) and "error" (containing the
+#'   error message in case of an error and NULL otherwise)
+#' @param use_plumber2 if \code{TRUE}, the plumber2 package is used, otherwise
+#'   the plumber package
 #' @export
-test_plumber_api <- function(catch_errors = FALSE) {
-  plumber_file <- system.file("scripts/plumber.R", package = "kwb.smartwater")
-  envir <- new.env(parent = .GlobalEnv)
+test_plumber_api <- function(catch_errors = FALSE, use_plumber2 = TRUE) {
+  env <- new.env(parent = .GlobalEnv)
   assign(
     x = "to_plumber_response", 
     value = if (catch_errors) to_plumber_response else identity,
-    envir = envir
+    envir = env
   )
-  plumber::pr_run(plumber::pr(plumber_file, envir = envir))
+  if (use_plumber2) {
+    file <- system.file("scripts/plumber2.R", package = "kwb.smartwater")
+    plumber2::api_run(api = plumber2::api(file, env = env))
+  } else {
+    file <- system.file("scripts/plumber.R", package = "kwb.smartwater")
+    plumber::pr_run(pr = plumber::pr(file, envir = env))
+  }
 }
 
 #' Convert function result (may inherit from "try-error") to a response
