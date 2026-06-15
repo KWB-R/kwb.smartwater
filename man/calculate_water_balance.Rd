@@ -4,10 +4,10 @@
 \alias{calculate_water_balance}
 \title{Calculate Water Balance for Given Block Areas and Measures}
 \usage{
-calculate_water_balance(blocks, measures)
+calculate_water_balance(blocks, measures, convert_types = FALSE)
 }
 \arguments{
-\item{blocks}{data.frame as returned by \code{\link{get_test_block}}}
+\item{blocks}{data.frame as returned by \code{\link{get_test_blocks}}}
 
 \item{measures}{data.frame containing information about the planned measures
 in m2. Each row refers to a block area, linked by the text field

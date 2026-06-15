@@ -30,39 +30,28 @@ get_test_config <- function() {
 } 
 
 #' Get one block (columns as expected by kwb.rabimo) for testing
+#' @param codes codes of the blocks to be selected from the Berlin dataset
 #' @export
-get_test_block <- function() {
-  block <- as.data.frame(kwb.rabimo::rabimo_inputs_2025$data[
-    kwb.rabimo::rabimo_inputs_2025$data$code == "1100541241000000",
-  ])
-  block[, !names(block) %in% c("Shape", "block_type")]
+get_test_blocks <- function(codes = c("1100541241000000", "1400761421000000")) {
+  all_blocks <- kwb.rabimo::rabimo_inputs_2025$data
+  blocks <- as.data.frame(all_blocks[all_blocks$code %in% codes, ])
+  columns_to_remove <- c("Shape", "block_type")
+  blocks[, !names(blocks) %in% columns_to_remove]
 }
 
-#' Get a list of measures to apply for testing
+#' Get measures for testing
+#' @param codes codes of the blocks to be selected from the Berlin dataset.
 #' @export
-get_test_measures <- function() {
-  list(
-    list(
-      name = "green_roof_ext",
-      area = 1000
-    ),
-    list(
-      name = "green_roof_int",
-      area = 800
-    ),
-    list(
-      name = "unpaving",
-      area = 1000
-    ),
-    list(
-      name = "permeable_paving",
-      area = 800
-    )
+get_test_block_measures <- function(codes) {
+  measure_fields <- lapply(get_measure_names(), function(x) 10)
+  cbind(
+    code = get_test_blocks()$codes, 
+    as.data.frame(measure_fields)
   )
 }
 
 #' Convert R-Abimo-block to partial areas given in m2
-#' @param block R-Abimo block, as e.g. returned by \code{\link{get_test_block}}
+#' @param block R-Abimo block, as e.g. returned by \code{\link{get_test_blocks}}
 #' @export
 rabimo_block_to_partial_areas_m2 <- function(block) {
   total <- block$total_area
@@ -168,6 +157,9 @@ apply_measure <- function(areas, measure) {
   update_calculated_fields(areas)
 }
 
+pkg_env <- new.env()
+pkg_env$running_api <- NULL
+
 #' Test the plumber API
 #' @param catch_errors whether or not to catch errors. If TRUE, errors are
 #'   caught and the result object is a list with elements "data" (containing the
@@ -176,7 +168,7 @@ apply_measure <- function(areas, measure) {
 #' @param use_plumber2 if \code{TRUE}, the plumber2 package is used, otherwise
 #'   the plumber package
 #' @export
-test_plumber_api <- function(catch_errors = FALSE, use_plumber2 = TRUE) {
+run_plumber_api <- function(catch_errors = FALSE, use_plumber2 = FALSE) {
   env <- new.env(parent = .GlobalEnv)
   assign(
     x = "to_plumber_response", 
@@ -184,11 +176,44 @@ test_plumber_api <- function(catch_errors = FALSE, use_plumber2 = TRUE) {
     envir = env
   )
   if (use_plumber2) {
-    file <- system.file("scripts/plumber2.R", package = "kwb.smartwater")
-    plumber2::api_run(api = plumber2::api(file, env = env))
+    if (is.null(pkg_env$running_api)) {
+      api <- plumber2_api(env = env)
+      plumber2::api_run(api = api)
+      pkg_env$running_api <- api
+    } else {
+      message("There is already a running API server.")
+    }
   } else {
-    file <- system.file("scripts/plumber.R", package = "kwb.smartwater")
-    plumber::pr_run(pr = plumber::pr(file, envir = env))
+    plumber::pr_run(pr = plumber_pr(env = env))
+  }
+}
+
+plumber2_api <- function(env = NULL) {
+  file <- system.file("scripts/plumber2.R", package = "kwb.smartwater")
+  if (is.null(env)) {
+    plumber2::api(file)
+  } else {
+    plumber2::api(file, env = env)
+  }
+}
+
+plumber_pr <- function(env = NULL) {
+  file <- system.file("scripts/plumber.R", package = "kwb.smartwater")
+  if (is.null(env)) {
+    plumber::pr(file)
+  } else {
+    plumber::pr(file, envir = env)
+  }
+}
+
+#' Stop the API server
+#' @export
+stop_plumber_api <- function() {
+  if (is.null(pkg_env$running_api)) {
+    message("No running API server found.")
+  } else {
+    plumber2::api_stop(pkg_env$running_api)
+    pkg_env$running_api <- NULL
   }
 }
 

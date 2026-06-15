@@ -1,18 +1,34 @@
 #* @apiTitle kwb.smartwater API (plumber)
 #* @apiDescription API for accessing the R-package kwb.smartwater
 
-#* @get /get_test_block
-#* @serializer json list(always_decimal = TRUE)
-#* Get one block (columns as expected by kwb.rabimo) for testing
-function()
+TEST_CODES <- c("1100541241000000", "1400761421000000")
+
+#* Get block areas, for testing
+#* Get information on test block areas, with all the fields that are expected by R-ABIMO.
+#* @get /get_test_blocks
+#* @param codes:[chr] codes to be selected from the Berlin R-ABIMO dataset
+#* @serializer json
+function(codes = TEST_CODES)
 {
   to_plumber_response(try({
-    kwb.smartwater::get_test_block()
+    kwb.smartwater::get_test_blocks(codes)
+  }))
+}
+
+#* Get test measures for test block areas
+#* Get measure objects for the test block areas, as required by /calculate_water_balance
+#* @get /get_test_block_measures
+#* @param codes:[chr] codes to be selected from the Berlin R-ABIMO dataset
+#* @serializer json
+function(codes = TEST_CODES)
+{
+  to_plumber_response(try({
+    kwb.smartwater::get_test_block_measures(codes)
   }))
 }
 
 #* Convert R-ABIMO-block to partial areas given in m2
-#* @param block:data.frame One R-ABIMO-Block, as e.g. returned by /get_test_block
+#* @param block:data.frame One R-ABIMO-Block, as e.g. returned by /get_test_blocks
 #* @post /rabimo_block_to_partial_areas_m2
 function(block)
 {
@@ -23,11 +39,11 @@ function(block)
 
 #* @get /get_test_partial_areas
 #* Get a test "state" of partial areas (in m2)
-#* Returns the same as /rabimo_block_to_partial_areas_m2 when being given the response of /get_test_block
+#* Returns the same as /rabimo_block_to_partial_areas_m2 when being given the response of /get_test_blocks
 function()
 {
   to_plumber_response(try({
-    block <- kwb.smartwater::get_test_block()
+    block <- kwb.smartwater::get_test_blocks()
     kwb.smartwater::rabimo_block_to_partial_areas_m2(block)
   }))
 }
@@ -59,15 +75,6 @@ function(areas, measure_name, measure_area)
   }))
 }
 
-#* @get /get_test_measures
-#* Get a test "sequence" of measures
-function()
-{
-  to_plumber_response(try({
-    kwb.smartwater::get_test_measures()
-  }))
-}
-
 #* @get /get_measure_names
 #* Get names of measures supported by kwb.smartwater
 function()
@@ -95,12 +102,17 @@ function(surface_reduction, type)
 }
 
 #* @post /calculate_water_balance
-#* @param blocks:data.frame Array of block areas, each of which looks like the object returned by /get_test_block
-#* @param measures:data.frame Array of objects containing information about the planned measures in m2. Each object has a text field "code" (matching the code of the corresponding block area) and one numeric field per measure. The names of the measure-related field must correspond to the names returned by /get_measure_names.
+#* @param blocks:data.frame Array of block areas, each of which looks like the object returned by /get_test_blocks
+#* @param measures:data.frame Array of objects containing information about the planned measures in m2. Each object has a text field "code" that identifies the block area to which the measures relate. All other fields are numeric and relate to a measure type. See /get_test_block_measures for an example object and for the expected measure names.
 #* Run R-Abimo for a given set of block areas and a given set of corresponding measures.
-function(blocks, measures)
+function(
+    blocks = kwb.smartwater::get_test_blocks(), 
+    measures = kwb.smartwater::get_test_block_measures()
+)
 {
   to_plumber_response(try({
-    kwb.smartwater::calculate_water_balance(blocks, measure_related_areas)
+    kwb.smartwater::calculate_water_balance(
+      blocks, measure_related_areas, convert_types = TRUE
+    )
   }))
 }
