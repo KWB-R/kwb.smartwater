@@ -1,18 +1,52 @@
-#* @apiTitle kwb.smartwater API
+#* @apiTitle kwb.smartwater API (plumber)
 #* @apiDescription API for accessing the R-package kwb.smartwater
 
-#* @get /get_test_block
-#* Get one block (columns as expected by kwb.rabimo) for testing
-function()
+TEST_CODES <- c("1100541241000000", "1400761421000000")
+
+#* @post /calculate_water_balance
+#* Run R-Abimo for given block areas and measures
+#* Run R-Abimo for a given set of block areas and a given set of corresponding measures.
+#* @param blocks:data.frame Array of block areas, as e.g. returned by /get_test_blocks
+#* @param measures:data.frame Array of objects containing information about the planned measures in m2. Each object has a text field "code" that identifies the block area to which the measures relate. All other fields are numeric and relate to a measure type. See /get_test_block_measures for an example object and for the expected measure names.
+function(
+    blocks = kwb.smartwater::get_test_blocks(), 
+    measures = kwb.smartwater::get_test_block_measures()
+)
 {
   to_plumber_response(try({
-    kwb.smartwater::get_test_block()
+    kwb.smartwater::calculate_water_balance(
+      blocks, measure_related_areas, convert_types = TRUE
+    )
   }))
 }
 
-#* Convert R-ABIMO-block to partial areas given in m2
-#* @param block:data.frame One R-ABIMO-Block, as e.g. returned by /get_test_block
+#* @get /get_test_blocks
+#* Get block areas, for testing
+#* Get information on test block areas, with all the fields that are expected by R-ABIMO.
+#* @param codes:[chr] codes to be selected from the Berlin R-ABIMO dataset
+#* @serializer json
+function(codes = TEST_CODES)
+{
+  to_plumber_response(try({
+    kwb.smartwater::get_test_blocks(codes)
+  }))
+}
+
+#* @get /get_test_block_measures
+#* Get test measures for test block areas
+#* Get measure objects for the test block areas, as required by /calculate_water_balance
+#* @param codes:[chr] codes to be selected from the Berlin R-ABIMO dataset
+#* @serializer json
+function(codes = TEST_CODES)
+{
+  to_plumber_response(try({
+    kwb.smartwater::get_test_block_measures(codes)
+  }))
+}
+
 #* @post /rabimo_block_to_partial_areas_m2
+#* Convert R-ABIMO-block to partial areas given in m2
+#* @param block:data.frame One R-ABIMO-Block, as e.g. returned by /get_test_blocks
 function(block)
 {
   to_plumber_response(try({
@@ -22,19 +56,19 @@ function(block)
 
 #* @get /get_test_partial_areas
 #* Get a test "state" of partial areas (in m2)
-#* Returns the same as /rabimo_block_to_partial_areas_m2 when being given the response of /get_test_block
+#* Returns the same as /rabimo_block_to_partial_areas_m2 when being given the response of /get_test_blocks
 function()
 {
   to_plumber_response(try({
-    block <- kwb.smartwater::get_test_block()
+    block <- kwb.smartwater::get_test_blocks()
     kwb.smartwater::rabimo_block_to_partial_areas_m2(block)
   }))
 }
 
 #* @post /get_available_m2
-#* @param areas:data.frame Partial areas in m2, as e.g. returned by /get_test_partial_areas
 #* Get areas in m2 that are available for further measures
 #* New measures must not exceed these values
+#* @param areas:data.frame Partial areas in m2, as e.g. returned by /get_test_partial_areas
 function(areas)
 {
   to_plumber_response(try({
@@ -43,10 +77,10 @@ function(areas)
 }
 
 #* @post /apply_measure
+#* Apply a measure to a "state" of areas and return the updated state
 #* @param areas:data.frame Partial areas in m2, as e.g. returned by /get_test_partial_areas
 #* @param measure_name method name (one of those returned by /get_measure_names)
 #* @param measure_area:numeric area associated to the measure, given in m2
-#* Apply a measure to a "state" of areas and return the updated state
 function(areas, measure_name, measure_area)
 {
   measure <- list(
@@ -55,15 +89,6 @@ function(areas, measure_name, measure_area)
   )
   to_plumber_response(try({
     kwb.smartwater::apply_measure(areas, measure)
-  }))
-}
-
-#* @get /get_test_measures
-#* Get a test "sequence" of measures
-function()
-{
-  to_plumber_response(try({
-    kwb.smartwater::get_test_measures()
   }))
 }
 
@@ -76,10 +101,8 @@ function()
   }))
 }
 
-# /plot_effect_of_disconnect ---------------------------------------------------
-
-#* Plot Effect of Disconnecting Surfaces
 #* @get /plot_effect_of_disconnect
+#* Plot Effect of Disconnecting Surfaces
 #* @param surface_reduction surface_reduction in percent
 #* @param type one of "critical_hours", "unpleasant_hours", "critical_events", "negative_deviation"
 #* @serializer contentType list(type="image/png")

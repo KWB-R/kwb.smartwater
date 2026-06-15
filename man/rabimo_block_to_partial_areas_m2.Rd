@@ -7,7 +7,7 @@
 rabimo_block_to_partial_areas_m2(block)
 }
 \arguments{
-\item{block}{R-Abimo block, as e.g. returned by \code{\link{get_test_block}}}
+\item{block}{R-Abimo block, as e.g. returned by \code{\link{get_test_blocks}}}
 }
 \description{
 Convert R-Abimo-block to partial areas given in m2

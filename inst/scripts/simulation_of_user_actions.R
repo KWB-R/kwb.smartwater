@@ -13,7 +13,6 @@ if (FALSE)
   (block <- get_test_block())
   
   # user selects methods and areas by clicking/drawing polygons
-  #measures_to_apply <- get_test_measures()
   measures_to_apply <- list(
     list(
       name = "green_roof_ext",
