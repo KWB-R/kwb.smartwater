@@ -179,12 +179,10 @@ rabimo_block_to_partial_areas_m2 <- function(block) {
 }
 
 update_calculated_fields <- function(areas) {
-  dplyr::mutate(
-    areas, 
-    pvd = pvd_1 + pvd_2 + pvd_3 + pvd_4 + pvd_na,
-    sealed = pvd + roof,
-    unsealed = total - sealed
-  )
+  areas[["pvd"]] <- with(areas, pvd_1 + pvd_2 + pvd_3 + pvd_4 + pvd_na)
+  areas[["sealed"]] <- with(areas, pvd + roof)
+  areas[["unsealed"]] <- with(areas, total - sealed)
+  areas
 }
 
 #' Get available area for each measure, based on current "state"
