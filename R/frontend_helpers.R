@@ -214,7 +214,7 @@ get_available_m2 <- function(areas) {
     field_name_only = TRUE
   )
   # "to_swale" "to_surf_infil" "to_swale_trench" "to_tree_pit" "to_trench" "to_cistern"
-  available[fields_inf_ret] <- areas$sealed
+  available[fields_inf_ret] <- areas$sealed - rowSums(areas[fields_inf_ret])
 
   ### tree measures: not considered here -> there are no limits!
   
