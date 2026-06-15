@@ -45,7 +45,7 @@ get_test_blocks <- function(codes = c("1100541241000000", "1400761421000000")) {
 get_test_block_measures <- function(codes) {
   measure_fields <- lapply(get_measure_names(), function(x) 10)
   cbind(
-    code = get_test_blocks()$codes, 
+    code = get_test_blocks()$code, 
     as.data.frame(measure_fields)
   )
 }
