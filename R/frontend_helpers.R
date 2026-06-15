@@ -1,16 +1,103 @@
-#' Get names of measures supported by kwb.smartwater
+#' Get info on the measures supported by kwb.smartwater
+#' 
+#' Get information on the rainwater management measures supported by 
+#' kwb.smartwater
+#' @param type optional. Vector of character indicating the method types 
+#'   ("green_roof", "pavement", "trees", "infiltration", "retention") for which 
+#'   to filter the output.
+#' @param field_name_only optional. Logical of length one indicating whether or 
+#'   not to return only the "field_name" instead of all info fields per measure
 #' @export
-get_measure_names <- function() {
-  list(
-    "green_roof_ext" = "Extensives Gruendach",
-    "green_roof_int" = "Intensives Gruendach",
-    "unpaving" = "Entsiegelung",
-    "permeable_paving" = "Teilentsiegelung",
-    "to_inf_mulde" = "Anschluss an Muldenversickerung",
-    "to_inf_rigole" = "Anschluss an Rigolenversickerung",
-    "to_inf_mulde_rigole" = "Anschluss an Mulden-Rigolenversickerung",
-    "to_retention" = "Anschluss an Speicher"
+get_measure_info <- function(type = character(0), field_name_only = FALSE) {
+  measure_info <- list(
+    list(
+      type = "green_roof",
+      field_name = "green_roof_ext",
+      long_name_de = "Extensive Dachbegrünung"
+    ),
+    list(
+      type = "green_roof",
+      field_name = "green_roof_int",
+      long_name_de = "Intensive Dachbegrünung"
+    ),
+    list(
+      type = "pavement",
+      field_name = "permeable_paving",
+      long_name_de = "Teilversiegelte Oberflächen"
+    ),
+    list(
+      type = "pavement",
+      field_name = "unpaving",
+      long_name_de = "Vollständige Entsiegelung/Grünflächen"
+    ),
+    list(
+      type = "trees",
+      field_name = "trees_sm",
+      long_name_de = "Bäume (klein)"
+    ),
+    list(
+      type = "trees",
+      field_name = "trees_md",
+      long_name_de = "Bäume (mittel)"
+    ),
+    list(
+      type = "trees",
+      field_name = "trees_lg",
+      long_name_de = "Bäume (groß)"
+    ),
+    list(
+      type = "infiltration",
+      field_name = "to_swale", # "to_inf_mulde"
+      long_name_de = "Mulde"
+    ),
+    list(
+      type = "infiltration",
+      field_name = "to_surf_infil",
+      long_name_de = "Flächenversickerung"
+    ),
+    list(
+      type = "infiltration",
+      field_name = "to_swale_trench", # "to_inf_mulde_rigole"
+      long_name_de = "Mulden-Rigolen-Element"
+    ),
+    # list(
+    #   type = "infiltration",
+    #   field_name = "to_bio_trench",
+    #   long_name_de = "Tiefbeet-Rigole"
+    # ),
+    list(
+      type = "infiltration",
+      field_name = "to_tree_pit",
+      long_name_de = "Optimierter Baumstandort"
+    ),  
+    list(
+      type = "infiltration",
+      field_name = "to_trench",
+      long_name_de = "Rigole"
+    ),
+    list(
+      type = "retention",
+      field_name = "to_cistern", # "to_retention"
+      long_name_de = "Zisterne"
+    )
   )
+  if (length(type) > 0L) {
+    allowed_types <- unique(sapply(get_measure_info(), `[[`, "type"))
+    unknown_types <- setdiff(type, allowed_types)
+    collapse <- function(x) paste0("'", x, "'", collapse = ", ")
+    if (length(unknown_types)) {
+      stop(
+        "Unknown types: ", collapse(unknown_types), ". Possible types are: ", 
+        collapse(allowed_types)
+      )
+    }
+    measure_info <- measure_info[sapply(measure_info, `[[`, "type") %in% type]
+  }
+  if (field_name_only) {
+    sapply(measure_info, `[[`, "field_name")
+  } else {
+    measure_info
+  }
 }
 
 get_test_config <- function() {
@@ -43,7 +130,10 @@ get_test_blocks <- function(codes = c("1100541241000000", "1400761421000000")) {
 #' @param codes codes of the blocks to be selected from the Berlin dataset.
 #' @export
 get_test_block_measures <- function(codes) {
-  measure_fields <- lapply(get_measure_names(), function(x) 10)
+  measure_fields <- lapply(
+    X = stats::setNames(nm = get_measure_info(field_name_only = TRUE)),
+    function(x) 10
+  )
   cbind(
     code = get_test_blocks()$code, 
     as.data.frame(measure_fields)
@@ -54,10 +144,12 @@ get_test_block_measures <- function(codes) {
 #' @param block R-Abimo block, as e.g. returned by \code{\link{get_test_blocks}}
 #' @export
 rabimo_block_to_partial_areas_m2 <- function(block) {
+  #block <- get_test_blocks()[1, ]
   total <- block$total_area
   roof <- total * block$roof
   pvd <- total * block$pvd
   current <- data.frame(
+    code = block$code,
     total = total,
     roof = roof,
     pvd = NA, # calculated from pvd_1, pvd_2, pvd_3, pvd_4, pvd_na
@@ -67,45 +159,69 @@ rabimo_block_to_partial_areas_m2 <- function(block) {
     pvd_4 = block$srf4_pvd * pvd,
     pvd_na = block$srf5_pvd * pvd,
     sealed = NA, # calculated
-    unsealed = NA, # calculated,
-    green_roof_ext = roof * block$green_roof,
-    green_roof_int = 0,
-    to_inf_mulde = block$to_swale,
-    to_inf_rigole = 0,
-    to_inf_mulde_rigole = 0,
-    to_retention = 0
+    unsealed = NA # calculated
   )
+  
+  # append measure columns (all initialised with zero) for non-tree-measures
+  all_measures <- get_measure_info(field_name_only = TRUE)
+  tree_measures <- get_measure_info(type = "trees", field_name_only = TRUE)
+  measures <- setdiff(all_measures, tree_measures)
+  current <- cbind(current, as.data.frame(as.list(
+    stats::setNames(rep(0, length(measures)), measures)
+  )))
+  
+  # set measures for which we find information in the block data (as used in
+  # the AMAREX project)
+  current$green_roof_ext <- roof * block$green_roof
+  current$to_swale <- block$to_swale
+  
   update_calculated_fields(areas = current)
 }
 
 update_calculated_fields <- function(areas) {
-  
-  areas$pvd <- with(areas, pvd_1 + pvd_2 + pvd_3 + pvd_4 + pvd_na)
-  areas$sealed <- with(areas, pvd + roof)
-  areas$unsealed <- with(areas, total - sealed)
-  areas
+  dplyr::mutate(
+    areas, 
+    pvd = pvd_1 + pvd_2 + pvd_3 + pvd_4 + pvd_na,
+    sealed = pvd + roof,
+    unsealed = total - sealed
+  )
 }
 
 #' Get available area for each measure, based on current "state"
 #' @param areas areas in m2, as returned by rabimo_block_to_partial_areas_m2
 #' @export
 get_available_m2 <- function(areas) {
-  available_green_roof <- with(
-    areas, 
-    roof - green_roof_ext - green_roof_int
+  
+  # initialise result list, to be filled with one value per measure
+  available <- list()
+  
+  ### green roof measures
+  fields_green_roof <- get_measure_info(
+    type = "green_roof", 
+    field_name_only = TRUE
   )
-  sealed <- areas$sealed
-  data.frame(
-    green_roof_ext = available_green_roof,
-    green_roof_int = available_green_roof,
-    unpaving = areas$pvd,
-    # Everything of pvd that is not yet in surface class 4
-    permeable_paving = with(areas, pvd - pvd_4),
-    to_inf_mulde = sealed,
-    to_inf_rigole = sealed,
-    to_inf_mulde_rigole = sealed,
-    to_retention = sealed
+  # "green_roof_ext" "green_roof_int"
+  available[fields_green_roof] <- areas$roof - rowSums(areas[fields_green_roof])
+  
+  ### pavement measures
+  # all paved can be unpaved
+  available[["unpaving"]] <- areas$pvd
+  # everything of pvd that is not yet in surface class 4 can go into class 4
+  available[["permeable_paving"]] <- areas$pvd - areas$pvd_4
+  
+  ### infiltration and retention measures
+  # all sealed area can be connected to infiltration/retention measures
+  fields_inf_ret <- get_measure_info(
+    type = c("infiltration", "retention"), 
+    field_name_only = TRUE
   )
+  # "to_swale" "to_surf_infil" "to_swale_trench" "to_tree_pit" "to_trench" "to_cistern"
+  available[fields_inf_ret] <- areas$sealed
+
+  ### tree measures: not considered here -> there are no limits!
+  
+  # return the available areas in m2 as a one-line data frame
+  as.data.frame(available)
 }
 
 #' Apply a measure to the current state of area assignments
@@ -135,7 +251,10 @@ apply_measure <- function(areas, measure) {
     areas$pvd_4 <- areas$pvd_4 * scaling_factor
     areas$pvd_na <- areas$pvd_na * scaling_factor
     
-    stopifnot(new_pvd == with(areas, pvd_1 + pvd_2 + pvd_3 + pvd_4 + pvd_na))
+    stopifnot(all.equal(
+      target = new_pvd, 
+      current = with(areas, pvd_1 + pvd_2 + pvd_3 + pvd_4 + pvd_na)
+    ))
     
   } else if (name == "permeable_paving") {
     
@@ -148,7 +267,7 @@ apply_measure <- function(areas, measure) {
     areas$pvd_2 <- areas$pvd_2 * scaling_factor
     areas$pvd_3 <- areas$pvd_3 * scaling_factor
     areas$pvd_na <- areas$pvd_na * scaling_factor
-
+    
   } else {
     
     stop(sprintf("Measure '%s' not supported!", name))
@@ -184,7 +303,9 @@ run_plumber_api <- function(catch_errors = FALSE, use_plumber2 = FALSE) {
       message("There is already a running API server.")
     }
   } else {
-    plumber::pr_run(pr = plumber_pr(env = env))
+    pr <- plumber_pr(env = env)
+    pr <- plumber::pr_set_debug(pr, TRUE) # does not seem to have an effect!
+    plumber::pr_run(pr = pr)
   }
 }
 

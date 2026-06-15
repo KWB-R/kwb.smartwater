@@ -3,7 +3,7 @@
 export(apply_measure)
 export(calculate_water_balance)
 export(get_available_m2)
-export(get_measure_names)
+export(get_measure_info)
 export(get_test_block_measures)
 export(get_test_blocks)
 export(plot_effect_of_disconnect)
