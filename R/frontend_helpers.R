@@ -13,37 +13,37 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
     list(
       type = "green_roof",
       field_name = "green_roof_ext",
-      long_name_de = "Extensive Dachbegrünung"
+      long_name_de = "Extensive Dachbegr\u00fcnung"
     ),
     list(
       type = "green_roof",
       field_name = "green_roof_int",
-      long_name_de = "Intensive Dachbegrünung"
+      long_name_de = "Intensive Dachbegr\u00fcnung"
     ),
     list(
       type = "pavement",
       field_name = "permeable_paving",
-      long_name_de = "Teilversiegelte Oberflächen"
+      long_name_de = "Teilversiegelte Oberfl\u00e4chen"
     ),
     list(
       type = "pavement",
       field_name = "unpaving",
-      long_name_de = "Vollständige Entsiegelung/Grünflächen"
+      long_name_de = "Vollst\u00e4ndige Entsiegelung/Gr\u00fcnfl\u00e4chen"
     ),
     list(
       type = "trees",
       field_name = "trees_sm",
-      long_name_de = "Bäume (klein)"
+      long_name_de = "B\u00e4ume (klein)"
     ),
     list(
       type = "trees",
       field_name = "trees_md",
-      long_name_de = "Bäume (mittel)"
+      long_name_de = "B\u00e4ume (mittel)"
     ),
     list(
       type = "trees",
       field_name = "trees_lg",
-      long_name_de = "Bäume (groß)"
+      long_name_de = "B\u00e4ume (gro\u00df)"
     ),
     list(
       type = "infiltration",
@@ -53,7 +53,7 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
     list(
       type = "infiltration",
       field_name = "to_surf_infil",
-      long_name_de = "Flächenversickerung"
+      long_name_de = "Fl\u00e4chenversickerung"
     ),
     list(
       type = "infiltration",

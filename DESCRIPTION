@@ -21,7 +21,7 @@ Imports:
 Suggests: 
     covr
 Remotes:
-    github::kwb-r/kwb.rabimo,
+    github::kwb-r/kwb.rabimo@dev,
     github::kwb-r/kwb.utils
 Config/roxygen2/version: 8.0.0
 RoxygenNote: 7.3.3
