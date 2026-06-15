@@ -20,8 +20,9 @@ calculate_water_balance(blocks, measures, convert_types = FALSE)
   data.frame containing information about the planned measures in m2.
   Each row refers to a block area, linked by the text field `code`.
   There is one numeric field per measure. The names of the
-  measure-related fields must correspond to the names returned by
-  [`get_measure_names`](https://kwb-r.github.io/kwb.smartwater/reference/get_measure_names.md).
+  measure-related fields must correspond to the `field_name`s returned
+  by
+  [`get_measure_info`](https://kwb-r.github.io/kwb.smartwater/reference/get_measure_info.md).
 
 - convert_types:
 

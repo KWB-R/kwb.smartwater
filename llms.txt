@@ -32,8 +32,8 @@ remotes::install_github("KWB-R/kwb.smartwater")
   : Calculate Water Balance for Given Block Areas and Measures
 - [`get_available_m2()`](https://kwb-r.github.io/kwb.smartwater/reference/get_available_m2.md)
   : Get available area for each measure, based on current "state"
-- [`get_measure_names()`](https://kwb-r.github.io/kwb.smartwater/reference/get_measure_names.md)
-  : Get names of measures supported by kwb.smartwater
+- [`get_measure_info()`](https://kwb-r.github.io/kwb.smartwater/reference/get_measure_info.md)
+  : Get info on the measures supported by kwb.smartwater
 - [`get_test_blocks()`](https://kwb-r.github.io/kwb.smartwater/reference/get_test_blocks.md)
   : Get one block (columns as expected by kwb.rabimo) for testing
 - [`get_test_block_measures()`](https://kwb-r.github.io/kwb.smartwater/reference/get_test_block_measures.md)
