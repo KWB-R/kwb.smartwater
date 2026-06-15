@@ -1,0 +1,28 @@
+# Package index
+
+## All functions
+
+- [`apply_measure()`](https://kwb-r.github.io/kwb.smartwater/reference/apply_measure.md)
+  : Apply a measure to the current state of area assignments
+- [`calculate_water_balance()`](https://kwb-r.github.io/kwb.smartwater/reference/calculate_water_balance.md)
+  : Calculate Water Balance for Given Block Areas and Measures
+- [`get_available_m2()`](https://kwb-r.github.io/kwb.smartwater/reference/get_available_m2.md)
+  : Get available area for each measure, based on current "state"
+- [`get_measure_names()`](https://kwb-r.github.io/kwb.smartwater/reference/get_measure_names.md)
+  : Get names of measures supported by kwb.smartwater
+- [`get_test_blocks()`](https://kwb-r.github.io/kwb.smartwater/reference/get_test_blocks.md)
+  : Get one block (columns as expected by kwb.rabimo) for testing
+- [`get_test_block_measures()`](https://kwb-r.github.io/kwb.smartwater/reference/get_test_block_measures.md)
+  : Get measures for testing
+- [`n_trees_to_veg_class_increment()`](https://kwb-r.github.io/kwb.smartwater/reference/n_trees_to_veg_class_increment.md)
+  : Vegetation Class Increment Caused by Planting Trees
+- [`plot_effect_of_disconnect()`](https://kwb-r.github.io/kwb.smartwater/reference/plot_effect_of_disconnect.md)
+  : Plot Effect of Disconnecting Surfaces from Sewer System
+- [`rabimo_block_to_partial_areas_m2()`](https://kwb-r.github.io/kwb.smartwater/reference/rabimo_block_to_partial_areas_m2.md)
+  : Convert R-Abimo-block to partial areas given in m2
+- [`run_plumber_api()`](https://kwb-r.github.io/kwb.smartwater/reference/run_plumber_api.md)
+  : Test the plumber API
+- [`stop_plumber_api()`](https://kwb-r.github.io/kwb.smartwater/reference/stop_plumber_api.md)
+  : Stop the API server
+- [`to_plumber_response()`](https://kwb-r.github.io/kwb.smartwater/reference/to_plumber_response.md)
+  : Convert function result (may inherit from "try-error") to a response
