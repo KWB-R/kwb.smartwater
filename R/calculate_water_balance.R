@@ -6,6 +6,8 @@
 #'   \code{code}. There is one numeric field per measure. The names of the
 #'   measure-related fields must correspond to the names returned by
 #'   \code{\link{get_measure_names}}.
+#' @param convert_types logical value indicating whether or not to convert the
+#'   data types in the \code{blocks} data frame as required by R-ABIMO.
 #' @export
 calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
   

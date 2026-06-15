@@ -14,6 +14,9 @@ in m2. Each row refers to a block area, linked by the text field
 \code{code}. There is one numeric field per measure. The names of the
 measure-related fields must correspond to the names returned by
 \code{\link{get_measure_names}}.}
+
+\item{convert_types}{logical value indicating whether or not to convert the
+data types in the \code{blocks} data frame as required by R-ABIMO.}
 }
 \description{
 Calculate Water Balance for Given Block Areas and Measures
