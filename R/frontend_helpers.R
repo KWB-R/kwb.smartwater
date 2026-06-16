@@ -9,7 +9,7 @@
 #'   not to return only the "field_name" instead of all info fields per measure
 #' @export
 get_measure_info <- function(type = character(0), field_name_only = FALSE) {
-  measure_info <- list(
+  measures <- list(
     list(
       type = "green_roof",
       field_name = "green_roof_ext",
@@ -81,8 +81,12 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
       long_name_de = "Zisterne"
     )
   )
+  # helper function to collect a specific field from each list element
+  collect <- function(x, field) {
+    sapply(x, `[[`, field)
+  }
   if (length(type) > 0L) {
-    allowed_types <- unique(sapply(get_measure_info(), `[[`, "type"))
+    allowed_types <- unique(collect(measures, "type"))
     unknown_types <- setdiff(type, allowed_types)
     collapse <- function(x) paste0("'", x, "'", collapse = ", ")
     if (length(unknown_types)) {
@@ -91,37 +95,21 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
         collapse(allowed_types)
       )
     }
-    measure_info <- measure_info[sapply(measure_info, `[[`, "type") %in% type]
+    measures <- measures[collect(measures, "type") %in% type]
   }
   if (field_name_only) {
-    sapply(measure_info, `[[`, "field_name")
+    collect(measures, "field_name")
   } else {
-    measure_info
+    measures
   }
 }
-
-get_test_config <- function() {
-  list(
-    
-  )
-  green_roof = list(
-    list(
-      roof_fraction_column ="green_roof_ext",
-      bagrov_value = 0.65
-    ),
-    list(
-      roof_fraction_column ="green_roof_int",
-      bagrov_value = 0.8
-    )
-  )  
-} 
 
 #' Get one block (columns as expected by kwb.rabimo) for testing
 #' @param codes codes of the blocks to be selected from the Berlin dataset
 #' @export
 get_test_blocks <- function(codes = c("1100541241000000", "1400761421000000")) {
-  all_blocks <- kwb.rabimo::rabimo_inputs_2025$data
-  blocks <- as.data.frame(all_blocks[all_blocks$code %in% codes, ])
+  all_blocks <- kwb.rabimo::rabimo_inputs_2025[["data"]]
+  blocks <- as.data.frame(all_blocks[all_blocks[["code"]] %in% codes, ])
   columns_to_remove <- c("Shape", "block_type")
   blocks[, !names(blocks) %in% columns_to_remove]
 }
@@ -135,7 +123,7 @@ get_test_block_measures <- function(codes) {
     function(x) 10
   )
   cbind(
-    code = get_test_blocks()$code, 
+    code = get_test_blocks()[["code"]], 
     as.data.frame(measure_fields)
   )
 }
@@ -145,19 +133,19 @@ get_test_block_measures <- function(codes) {
 #' @export
 rabimo_block_to_partial_areas_m2 <- function(block) {
   #block <- get_test_blocks()[1, ]
-  total <- block$total_area
-  roof <- total * block$roof
-  pvd <- total * block$pvd
+  total <- block[["total_area"]]
+  roof <- total * block[["roof"]]
+  pvd <- total * block[["pvd"]]
   current <- data.frame(
-    code = block$code,
+    code = block[["code"]],
     total = total,
     roof = roof,
     pvd = NA, # calculated from pvd_1, pvd_2, pvd_3, pvd_4, pvd_na
-    pvd_1 = block$srf1_pvd * pvd,
-    pvd_2 = block$srf2_pvd * pvd,
-    pvd_3 = block$srf3_pvd * pvd,
-    pvd_4 = block$srf4_pvd * pvd,
-    pvd_na = block$srf5_pvd * pvd,
+    pvd_1 = block[["srf1_pvd"]] * pvd,
+    pvd_2 = block[["srf2_pvd"]] * pvd,
+    pvd_3 = block[["srf3_pvd"]] * pvd,
+    pvd_4 = block[["srf4_pvd"]] * pvd,
+    pvd_na = block[["srf5_pvd"]] * pvd,
     sealed = NA, # calculated
     unsealed = NA # calculated
   )
@@ -169,13 +157,17 @@ rabimo_block_to_partial_areas_m2 <- function(block) {
   current <- cbind(current, as.data.frame(as.list(
     stats::setNames(rep(0, length(measures)), measures)
   )))
+
+  # recalculate `pvd`, `sealed`, `unsealed`
+  current <- update_calculated_fields(current)
   
   # set measures for which we find information in the block data (as used in
   # the AMAREX project)
-  current$green_roof_ext <- roof * block$green_roof
-  current$to_swale <- block$to_swale
+  current[["green_roof_ext"]] <- roof * block[["green_roof"]]
+  current[["to_swale"]] <- current[["sealed"]] * block[["to_swale"]]
   
-  update_calculated_fields(areas = current)
+  # return the "current state" of partial areas
+  current
 }
 
 update_calculated_fields <- function(areas) {
@@ -199,13 +191,13 @@ get_available_m2 <- function(areas) {
     field_name_only = TRUE
   )
   # "green_roof_ext" "green_roof_int"
-  available[fields_green_roof] <- areas$roof - rowSums(areas[fields_green_roof])
+  available[fields_green_roof] <- areas[["roof"]] - rowSums(areas[fields_green_roof])
   
   ### pavement measures
   # all paved can be unpaved
-  available[["unpaving"]] <- areas$pvd
+  available[["unpaving"]] <- areas[["pvd"]]
   # everything of pvd that is not yet in surface class 4 can go into class 4
-  available[["permeable_paving"]] <- areas$pvd - areas$pvd_4
+  available[["permeable_paving"]] <- areas[["pvd"]] - areas[["pvd_4"]]
   
   ### infiltration and retention measures
   # all sealed area can be connected to infiltration/retention measures
@@ -214,8 +206,8 @@ get_available_m2 <- function(areas) {
     field_name_only = TRUE
   )
   # "to_swale" "to_surf_infil" "to_swale_trench" "to_tree_pit" "to_trench" "to_cistern"
-  available[fields_inf_ret] <- areas$sealed - rowSums(areas[fields_inf_ret])
-
+  available[fields_inf_ret] <- areas[["sealed"]] - rowSums(areas[fields_inf_ret])
+  
   ### tree measures: not considered here -> there are no limits!
   
   # return the available areas in m2 as a one-line data frame
@@ -232,22 +224,28 @@ get_available_m2 <- function(areas) {
 #'
 #' @export
 apply_measure <- function(areas, measure) {
-  name <- measure$name
+  name <- measure[["name"]]
   
-  if (name %in% c("green_roof_ext", "green_roof_int")) {
+  green_roof_measures <- get_measure_info("green_roof", TRUE)
+  inf_ret_measures <- get_measure_info(c("infiltration", "retention"), TRUE)
+  
+  if (
+    name %in% green_roof_measures ||
+    name %in% inf_ret_measures
+  ) {
     
-    areas[[name]] <- areas[[name]] + measure$area
+    areas[[name]] <- areas[[name]] + measure[["area"]]
     
   } else if (name == "unpaving") {
     
-    new_pvd <- areas$pvd - measure$area
-    scaling_factor <- new_pvd / areas$pvd
+    new_pvd <- areas[["pvd"]] - measure[["area"]]
+    scaling_factor <- new_pvd / areas[["pvd"]]
     
-    areas$pvd_1 <- areas$pvd_1 * scaling_factor
-    areas$pvd_2 <- areas$pvd_2 * scaling_factor
-    areas$pvd_3 <- areas$pvd_3 * scaling_factor
-    areas$pvd_4 <- areas$pvd_4 * scaling_factor
-    areas$pvd_na <- areas$pvd_na * scaling_factor
+    areas[["pvd_1"]] <- areas[["pvd_1"]] * scaling_factor
+    areas[["pvd_2"]] <- areas[["pvd_2"]] * scaling_factor
+    areas[["pvd_3"]] <- areas[["pvd_3"]] * scaling_factor
+    areas[["pvd_4"]] <- areas[["pvd_4"]] * scaling_factor
+    areas[["pvd_na"]] <- areas[["pvd_na"]] * scaling_factor
     
     stopifnot(all.equal(
       target = new_pvd, 
@@ -258,13 +256,13 @@ apply_measure <- function(areas, measure) {
     
     # increase pvd_4, take equally from pvd_1, pvd_2, pvd_3, pvd_na
     pvd_not_4 <- with(areas, pvd_1 + pvd_2 + pvd_3 + pvd_na)
-    scaling_factor <- 1 - 1 / pvd_not_4 * measure$area
+    scaling_factor <- 1 - 1 / pvd_not_4 * measure[["area"]]
     
-    areas$pvd_4 <- areas$pvd_4 + measure$area
-    areas$pvd_1 <- areas$pvd_1 * scaling_factor
-    areas$pvd_2 <- areas$pvd_2 * scaling_factor
-    areas$pvd_3 <- areas$pvd_3 * scaling_factor
-    areas$pvd_na <- areas$pvd_na * scaling_factor
+    areas[["pvd_4"]] <- areas[["pvd_4"]] + measure[["area"]]
+    areas[["pvd_1"]] <- areas[["pvd_1"]] * scaling_factor
+    areas[["pvd_2"]] <- areas[["pvd_2"]] * scaling_factor
+    areas[["pvd_3"]] <- areas[["pvd_3"]] * scaling_factor
+    areas[["pvd_na"]] <- areas[["pvd_na"]] * scaling_factor
     
   } else {
     
@@ -275,7 +273,7 @@ apply_measure <- function(areas, measure) {
 }
 
 pkg_env <- new.env()
-pkg_env$running_api <- NULL
+pkg_env[["running_api"]] <- NULL
 
 #' Test the plumber API
 #' @param catch_errors whether or not to catch errors. If TRUE, errors are
@@ -293,10 +291,10 @@ run_plumber_api <- function(catch_errors = FALSE, use_plumber2 = FALSE) {
     envir = env
   )
   if (use_plumber2) {
-    if (is.null(pkg_env$running_api)) {
+    if (is.null(pkg_env[["running_api"]])) {
       api <- plumber2_api(env = env)
       plumber2::api_run(api = api)
-      pkg_env$running_api <- api
+      pkg_env[["running_api"]] <- api
     } else {
       message("There is already a running API server.")
     }
@@ -328,11 +326,11 @@ plumber_pr <- function(env = NULL) {
 #' Stop the API server
 #' @export
 stop_plumber_api <- function() {
-  if (is.null(pkg_env$running_api)) {
+  if (is.null(pkg_env[["running_api"]])) {
     message("No running API server found.")
   } else {
-    plumber2::api_stop(pkg_env$running_api)
-    pkg_env$running_api <- NULL
+    plumber2::api_stop(pkg_env[["running_api"]])
+    pkg_env[["running_api"]] <- NULL
   }
 }
 
@@ -342,6 +340,6 @@ to_plumber_response <- function(result) {
   failed <- inherits(result, "try-error")
   list(
     data = if (!failed) result,
-    error = if (failed) attr(result, "condition")$message
+    error = if (failed) attr(result, "condition")[["message"]]
   )
 }
