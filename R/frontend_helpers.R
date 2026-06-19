@@ -67,8 +67,18 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
     # ),
     list(
       type = "infiltration",
-      field_name = "to_tree_pit",
-      long_name_de = "Optimierter Baumstandort"
+      field_name = "to_tree_pit_sm",
+      long_name_de = "Optimierter Baumstandort (kleiner Baum)"
+    ),  
+    list(
+      type = "infiltration",
+      field_name = "to_tree_pit_md",
+      long_name_de = "Optimierter Baumstandort (mittlerer Baum)"
+    ),  
+    list(
+      type = "infiltration",
+      field_name = "to_tree_pit_lg",
+      long_name_de = "Optimierter Baumstandort (gro\u00dfer Baum)"
     ),  
     list(
       type = "infiltration",
@@ -78,7 +88,7 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
     list(
       type = "retention",
       field_name = "to_cistern", # "to_retention"
-      long_name_de = "Zisterne"
+      long_name_de = "Zisterne" # (= Regentonne)
     )
   )
   # helper function to collect a specific field from each list element
@@ -151,9 +161,7 @@ rabimo_block_to_partial_areas_m2 <- function(block) {
   )
   
   # append measure columns (all initialised with zero) for non-tree-measures
-  all_measures <- get_measure_info(field_name_only = TRUE)
-  tree_measures <- get_measure_info(type = "trees", field_name_only = TRUE)
-  measures <- setdiff(all_measures, tree_measures)
+  measures <- get_measure_info(field_name_only = TRUE)
   current <- cbind(current, as.data.frame(as.list(
     stats::setNames(rep(0, length(measures)), measures)
   )))
@@ -205,7 +213,8 @@ get_available_m2 <- function(areas) {
     type = c("infiltration", "retention"), 
     field_name_only = TRUE
   )
-  # "to_swale" "to_surf_infil" "to_swale_trench" "to_tree_pit" "to_trench" "to_cistern"
+  # "to_swale" "to_surf_infil" "to_swale_trench" "to_tree_pit_sm" "to_tree_pit_md" 
+  # "to_tree_pit_lg" "to_trench" "to_cistern"
   available[fields_inf_ret] <- areas[["sealed"]] - rowSums(areas[fields_inf_ret])
   
   ### tree measures: not considered here -> there are no limits!
@@ -216,6 +225,7 @@ get_available_m2 <- function(areas) {
 
 #' Apply a measure to the current state of area assignments
 #' 
+#' Attention: The tree-measures are not considered here!
 #' @param areas one-row data frame with each column representing a partial area
 #'   of the total block area, in m2, as e.g. returned by 
 #'   \code{\link{rabimo_block_to_partial_areas_m2}}
@@ -226,17 +236,15 @@ get_available_m2 <- function(areas) {
 apply_measure <- function(areas, measure) {
   name <- measure[["name"]]
   
-  green_roof_measures <- get_measure_info("green_roof", TRUE)
-  inf_ret_measures <- get_measure_info(c("infiltration", "retention"), TRUE)
-  
-  if (
-    name %in% green_roof_measures ||
-    name %in% inf_ret_measures
-  ) {
-    
-    areas[[name]] <- areas[[name]] + measure[["area"]]
-    
-  } else if (name == "unpaving") {
+  if (!name %in% get_measure_info(field_name_only = TRUE)) {
+    stop(sprintf("Measure '%s' not supported!", name))
+  }
+
+  # Add the area of the measure to area that is already allocated to the measure
+  areas[[name]] <- areas[[name]] + measure[["area"]]
+
+  # Only measures related to paving need special treatment ("accordeon"):
+  if (name == "unpaving") {
     
     new_pvd <- areas[["pvd"]] - measure[["area"]]
     scaling_factor <- new_pvd / areas[["pvd"]]
@@ -264,9 +272,6 @@ apply_measure <- function(areas, measure) {
     areas[["pvd_3"]] <- areas[["pvd_3"]] * scaling_factor
     areas[["pvd_na"]] <- areas[["pvd_na"]] * scaling_factor
     
-  } else {
-    
-    stop(sprintf("Measure '%s' not supported!", name))
   }
   
   update_calculated_fields(areas)
