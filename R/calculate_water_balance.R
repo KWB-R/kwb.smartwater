@@ -31,7 +31,8 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
     blocks <- kwb.rabimo:::check_or_convert_data_types(
       data = blocks, 
       types = kwb.rabimo:::get_expected_data_type(names(blocks)), 
-      convert = TRUE
+      convert = TRUE, 
+      dbg = FALSE
     )
   }
 
