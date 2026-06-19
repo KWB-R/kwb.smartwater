@@ -113,8 +113,9 @@ function(
   }))
 }
 
-#* @get /plot_effect_of_less_runoff
-#* Plot Effect of less Runoff (by Disconnecting Surfaces)
+#* @get /plot_effect_of_disconnect
+#* Plot Effect of Disconnecting Surfaces
+#* Plot the effect of disconnecting surfaces, i.e. by reducing runoff
 #* @param runoff_reduction runoff_reduction, in percent, as returned by /calculate_water_balance in field `statistics.runoff_reduction_percent`
 #* @param type one of "critical_hours", "unpleasant_hours", "critical_events", "negative_deviation"
 #* @serializer contentType list(type="image/png")
