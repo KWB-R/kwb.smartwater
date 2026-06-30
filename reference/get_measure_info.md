@@ -13,7 +13,7 @@ get_measure_info(type = character(0), field_name_only = FALSE)
 
 - type:
 
-  optional. Vector of character indicating the method types
+  optional. Vector of character indicating the measure types
   ("green_roof", "pavement", "trees", "infiltration", "retention") for
   which to filter the output.
 
