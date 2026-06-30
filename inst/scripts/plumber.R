@@ -7,7 +7,7 @@ TEST_CODES <- c("1100541241000000", "1400761421000000")
 #* Get info on measures supported by kwb.smartwater
 #' 
 #' Get information on the rainwater management measures supported by kwb.smartwater
-#' @param type:[chr] optional. Vector of character indicating the method types ("green_roof", "pavement", "trees", "infiltration", "retention") for which to filter the output.
+#' @param type:[chr] optional. Vector of character indicating the measure types ("green_roof", "pavement", "trees", "infiltration", "retention") for which to filter the output.
 #' @param field_name_only:logical optional. Logical of length one indicating whether or not to return only the "field_name" instead of all info fields per measure
 #* @serializer unboxedJSON
 function(type = character(0), field_name_only = FALSE)

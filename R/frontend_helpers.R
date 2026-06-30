@@ -2,7 +2,7 @@
 #' 
 #' Get information on the rainwater management measures supported by 
 #' kwb.smartwater
-#' @param type optional. Vector of character indicating the method types 
+#' @param type optional. Vector of character indicating the measure types 
 #'   ("green_roof", "pavement", "trees", "infiltration", "retention") for which 
 #'   to filter the output.
 #' @param field_name_only optional. Logical of length one indicating whether or 
@@ -67,18 +67,8 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
     # ),
     list(
       type = "infiltration",
-      field_name = "to_tree_pit_sm",
-      long_name_de = "Optimierter Baumstandort (kleiner Baum)"
-    ),  
-    list(
-      type = "infiltration",
-      field_name = "to_tree_pit_md",
-      long_name_de = "Optimierter Baumstandort (mittlerer Baum)"
-    ),  
-    list(
-      type = "infiltration",
-      field_name = "to_tree_pit_lg",
-      long_name_de = "Optimierter Baumstandort (gro\u00dfer Baum)"
+      field_name = "to_tree_pit",
+      long_name_de = "Optimierter Baumstandort"
     ),  
     list(
       type = "infiltration",
