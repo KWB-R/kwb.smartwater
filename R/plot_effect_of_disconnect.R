@@ -17,8 +17,13 @@ plot_effect_of_disconnect <- function(
     width_factor = 10/6.789581
 )
 {
-  # kwb.utils::assignPackageObjects("kwb.smartwater")
-  # surface_reduction <- 10.5
+  if (FALSE) 
+  {
+    kwb.utils::assignPackageObjects("kwb.smartwater")
+    surface_reduction <- 10.5
+    type <- "critical_hours"
+    width_factor <- 10/6.789581
+  }
   
   type <- match.arg(type, c(
     "critical_hours",    # Unterschreitungsdauer 1.5 mg/L
@@ -71,82 +76,76 @@ get_plot_fun_args_for_surface_reduction <- function(
     xpdDim = 6,
     width_factor = 10/6.789581
 ) {
-  type <- match.arg(type, allowed_types <- c(
+  
+  allowed_types <- c(
     "critical_hours",
     "unpleasant_hours",
     "critical_events",
     "negative_deviation"
-  ))
+  )
+  
+  type <- match.arg(type, allowed_types)
   
   models <- get_models()
-  model_scaling_factor <- 1
-  defModel <- defHourModel
   
-  if (type == "critical_hours") {
-    
-    model <- models$critical_hour
-    classBreaks <- c(0, 25, 50, 100, 200, 300, Inf)
-    LegendTitle <- paste0(
-      "Unterschreitungsdauer in Stunden (1,5 mg/L) bei ",
-      sub(pattern = "\\.", replacement = ",", x = surface_reduction),
-      "% Abkopplung"
+  add_context_to_title <- function(title) {
+    sprintf(
+      "%s bei %s %% Abkopplung",
+      title, format(surface_reduction, decimal.mark = ",")
     )
-    
-  } else if (type == "unpleasant_hours") {
-    
-    model <- models$unpleasant_hours
-    classBreaks <- c(0, 50, 100, 200, 300, 500, Inf)
-    LegendTitle <- paste0(
-      "Unterschreitungsdauer in Stunden (3 mg/L) bei ",
-      sub(pattern = "\\.", replacement = ",", x = surface_reduction),
-      "% Abkopplung"
-    )
-    
-  } else if (type == "critical_events") {
-    
-    model <- models$critical_events
-    classBreaks <- c(-Inf, 0, 1, 3, 6, 10, Inf)
-    LegendTitle <- paste0(
-      "Kritische Sauerstoffereignisse bei ",
-      sub(pattern = "\\.", replacement = ",", x = surface_reduction),
-      "% Abkopplung"
-    )
-    defModel <- defEventModel
-    
-  } else if (type == "negative_deviation") {
-    
-    model <- models$negative_deviation
-    model_scaling_factor <- 100
-    classBreaks <- c(0, 2, 5, 10, 20, 30, Inf)
-    LegendTitle <- paste0(
-      "Negative Abwichung vom Referenzustand (in %) bei ",
-      sub(pattern = "\\.", replacement = ",", x = surface_reduction),
-      "% Abkopplung"
-    )
-    
-  } else {
-    
-    stop("type must be one of ", paste(allowed_types, collapse = ", "))
   }
   
+  model_specs <- list(
+    critical_hours = list(
+      model = models$critical_hour,
+      scaling_factor = 1,
+      defModel = defHourModel,
+      breaks = c(0, 25, 50, 100, 200, 300, Inf),
+      title = "Unterschreitungsdauer in Stunden (1,5 mg/L)"
+    ),
+    unpleasant_hours = list(
+      model = models$unpleasant_hours,
+      scaling_factor = 1,
+      defModel = defHourModel,
+      breaks = c(0, 50, 100, 200, 300, 500, Inf),
+      title = "Unterschreitungsdauer in Stunden (3 mg/L)"
+    ),
+    critical_events = list(
+      model = models$critical_events,
+      scaling_factor = 1,
+      defModel = defEventModel,
+      breaks = c(-Inf, 0, 1, 3, 6, 10, Inf),
+      title = "Kritische Sauerstoffereignisse"
+    ),
+    negative_deviation = list(
+      model = models$negative_deviation,
+      scaling_factor = 100,
+      defModel = defHourModel,
+      breaks = c(0, 2, 5, 10, 20, 30, Inf),
+      title = "Negative Abwichung vom Referenzustand (in %)"
+    )
+  )
+
+  model_spec <- model_specs[[type]]
+
   list(
     ext_rivers = value_to_classes(
       river_list = prepare_rivers(
         rivers, 
         df_in = cbind(
           "value" = sapply(
-            model, 
-            FUN = defModel, 
+            model_spec[["model"]], 
+            FUN = model_spec[["defModel"]], 
             surface_reduction = surface_reduction
-          ) * model_scaling_factor,
+          ) * model_spec[["scaling_factor"]],
           siteInfo
         ), 
         mappingTable = mappingTable
       ),
-      classBreaks = classBreaks,
+      classBreaks = model_spec[["breaks"]],
       colorVector = MisaColor
     ), 
-    LegendTitle = LegendTitle, 
+    LegendTitle = add_context_to_title(model_spec[["title"]]), 
     xlim = xlim,
     ylim = ylim,
     districPolygons = districPolygons, 

@@ -15,5 +15,5 @@ of the total block area, in m2, as e.g. returned by
 area (area in m2 that is assigned to the measure)}
 }
 \description{
-Apply a measure to the current state of area assignments
+Attention: The tree-measures are not considered here!
 }

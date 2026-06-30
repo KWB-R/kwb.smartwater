@@ -12,7 +12,7 @@ if (FALSE)
   # user selects a block (area-related columns except "total" are fractions)
   (block <- get_test_block())
   
-  # user selects methods and areas by clicking/drawing polygons
+  # user selects measures and areas by clicking/drawing polygons
   measures_to_apply <- list(
     list(
       name = "green_roof_ext",

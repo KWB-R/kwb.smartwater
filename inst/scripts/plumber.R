@@ -7,7 +7,7 @@ TEST_CODES <- c("1100541241000000", "1400761421000000")
 #* Get info on measures supported by kwb.smartwater
 #' 
 #' Get information on the rainwater management measures supported by kwb.smartwater
-#' @param type:[chr] optional. Vector of character indicating the method types ("green_roof", "pavement", "trees", "infiltration", "retention") for which to filter the output.
+#' @param type:[chr] optional. Vector of character indicating the measure types ("green_roof", "pavement", "trees", "infiltration", "retention") for which to filter the output.
 #' @param field_name_only:logical optional. Logical of length one indicating whether or not to return only the "field_name" instead of all info fields per measure
 #* @serializer unboxedJSON
 function(type = character(0), field_name_only = FALSE)
@@ -29,7 +29,7 @@ function(
 {
   to_plumber_response(try({
     kwb.smartwater::calculate_water_balance(
-      blocks, measure_related_areas, convert_types = TRUE
+      blocks, measures, convert_types = TRUE
     )
   }))
 }
@@ -115,13 +115,14 @@ function(
 
 #* @get /plot_effect_of_disconnect
 #* Plot Effect of Disconnecting Surfaces
-#* @param surface_reduction surface_reduction in percent
+#* Plot the effect of disconnecting surfaces, i.e. by reducing runoff
+#* @param runoff_reduction runoff_reduction, in percent, as returned by /calculate_water_balance in field `statistics.runoff_reduction_percent`
 #* @param type one of "critical_hours", "unpleasant_hours", "critical_events", "negative_deviation"
 #* @serializer contentType list(type="image/png")
-function(surface_reduction, type)
+function(runoff_reduction, type)
 {
   file <- kwb.smartwater::plot_effect_of_disconnect(
-    surface_reduction = as.numeric(surface_reduction), 
+    surface_reduction = as.numeric(runoff_reduction), 
     type = type, 
     output_dir = tempdir()
   )
