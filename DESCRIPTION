@@ -15,11 +15,11 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports: 
     plumber,
-    plumber2,
     kwb.rabimo,
     kwb.utils
 Suggests: 
     covr
+    plumber2
 Remotes:
     github::kwb-r/kwb.rabimo@dev,
     github::kwb-r/kwb.utils
