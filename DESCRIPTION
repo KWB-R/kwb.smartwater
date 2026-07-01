@@ -18,7 +18,7 @@ Imports:
     kwb.rabimo,
     kwb.utils
 Suggests: 
-    covr
+    covr,
     plumber2
 Remotes:
     github::kwb-r/kwb.rabimo@dev,
