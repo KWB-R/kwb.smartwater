@@ -13,12 +13,18 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
     list(
       type = "green_roof",
       field_name = "green_roof_ext",
-      long_name_de = "Extensive Dachbegr\u00fcnung"
+      long_name_de = "Extensive Dachbegr\u00fcnung",
+      abimo_parameters = list(
+        bagrov_value = 0.65
+      )
     ),
     list(
       type = "green_roof",
       field_name = "green_roof_int",
-      long_name_de = "Intensive Dachbegr\u00fcnung"
+      long_name_de = "Intensive Dachbegr\u00fcnung",
+      abimo_parameters = list(
+        bagrov_value = 0.75
+      )
     ),
     list(
       type = "pavement",
@@ -48,37 +54,55 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
     list(
       type = "infiltration",
       field_name = "to_swale", # "to_inf_mulde"
-      long_name_de = "Mulde"
+      long_name_de = "Mulde",
+      abimo_parameters = list(
+        evaporation_factor = 0.1,
+        overflow_factor = 0.05        
+      )
     ),
     list(
       type = "infiltration",
       field_name = "to_surf_infil",
-      long_name_de = "Fl\u00e4chenversickerung"
+      long_name_de = "Fl\u00e4chenversickerung",
+      abimo_parameters = list(
+        evaporation_factor = 0.15,
+        overflow_factor = 0.15
+      )
     ),
     list(
       type = "infiltration",
       field_name = "to_swale_trench", # "to_inf_mulde_rigole"
-      long_name_de = "Mulden-Rigolen-Element"
+      long_name_de = "Mulden-Rigolen-Element",
+      abimo_parameters = list(
+        evaporation_factor = 0.08,
+        overflow_factor = 0.1
+      )
     ),
-    # list(
-    #   type = "infiltration",
-    #   field_name = "to_bio_trench",
-    #   long_name_de = "Tiefbeet-Rigole"
-    # ),
     list(
       type = "infiltration",
       field_name = "to_tree_pit",
-      long_name_de = "Optimierter Baumstandort"
+      long_name_de = "Optimierter Baumstandort",
+      abimo_parameters = list(
+        evaporation_factor = 0.2,
+        overflow_factor = 0.15
+      )
     ),  
     list(
       type = "infiltration",
       field_name = "to_trench",
-      long_name_de = "Rigole"
+      long_name_de = "Rigole",
+      abimo_parameters = list(
+        evaporation_factor = 0.15,
+        overflow_factor = 0.15
+      )
     ),
     list(
       type = "retention",
       field_name = "to_cistern", # "to_retention"
-      long_name_de = "Zisterne" # (= Regentonne)
+      long_name_de = "Zisterne", # (= Regentonne)
+      abimo_parameters = list(
+        overflow_factor = 0.5
+      )
     )
   )
   # helper function to collect a specific field from each list element
@@ -117,13 +141,16 @@ get_test_blocks <- function(codes = c("1100541241000000", "1400761421000000")) {
 #' Get measures for testing
 #' @param codes codes of the blocks to be selected from the Berlin dataset.
 #' @export
-get_test_block_measures <- function(codes) {
+get_test_block_measures <- function(
+    codes = get_test_blocks()[["code"]], 
+    value = 10
+) {
   measure_fields <- lapply(
     X = stats::setNames(nm = get_measure_info(field_name_only = TRUE)),
-    function(x) 10
+    function(x) value
   )
   cbind(
-    code = get_test_blocks()[["code"]], 
+    code = codes, 
     as.data.frame(measure_fields)
   )
 }

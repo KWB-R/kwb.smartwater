@@ -4,7 +4,7 @@
 \alias{get_test_block_measures}
 \title{Get measures for testing}
 \usage{
-get_test_block_measures(codes)
+get_test_block_measures(codes = get_test_blocks()[["code"]], value = 10)
 }
 \arguments{
 \item{codes}{codes of the blocks to be selected from the Berlin dataset.}
