@@ -140,6 +140,7 @@ get_test_blocks <- function(codes = c("1100541241000000", "1400761421000000")) {
 
 #' Get measures for testing
 #' @param codes codes of the blocks to be selected from the Berlin dataset.
+#' @param value area im m2 to be assigned to each measure. Default: 10
 #' @export
 get_test_block_measures <- function(
     codes = get_test_blocks()[["code"]], 
