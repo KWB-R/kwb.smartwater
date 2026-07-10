@@ -53,7 +53,7 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
 
   # Calculate absolute areas in m2 from area percentages and add one column per
   # measure
-  all_areas_m2 <- kwb.smartwater:::rabimo_block_to_partial_areas_m2(blocks)
+  all_areas_m2 <- rabimo_block_to_partial_areas_m2(blocks)
   
   # Modify the blocks according to the measures (if any) for each block
   new_blocks <- do.call(rbind, lapply(seq_len(nrow(blocks)), function(i) {
