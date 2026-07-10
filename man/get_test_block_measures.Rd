@@ -4,10 +4,12 @@
 \alias{get_test_block_measures}
 \title{Get measures for testing}
 \usage{
-get_test_block_measures(codes)
+get_test_block_measures(codes = get_test_blocks()[["code"]], value = 10)
 }
 \arguments{
 \item{codes}{codes of the blocks to be selected from the Berlin dataset.}
+
+\item{value}{area im m2 to be assigned to each measure. Default: 10}
 }
 \description{
 Get measures for testing
