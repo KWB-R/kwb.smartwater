@@ -53,13 +53,14 @@ plot_effect_of_disconnect <- function(
         res = 600
       ),
       plot_fun = plot_rivers,
-      plot_fun_args = plot_fun_args
+      plot_fun_args = plot_fun_args$plot_args
     )
   } else {
-    do.call(plot_rivers, plot_fun_args)
+    do.call(plot_rivers, plot_fun_args$plot_args)
   }
   
   invisible(filename)
+  return(plot_fun_args$additional_values)
 }
 
 #' @importFrom utils read.csv
@@ -127,30 +128,47 @@ get_plot_fun_args_for_surface_reduction <- function(
   )
 
   model_spec <- model_specs[[type]]
-
+  overflowVolume_miom3 <- exp(surface_reduction * -0.044 + 1.55)
+  
+  ext_rivers <- value_to_classes(
+    river_list = prepare_rivers(
+      rivers, 
+      df_in = cbind(
+        "value" = sapply(
+          model_spec[["model"]], 
+          FUN = model_spec[["defModel"]], 
+          surface_reduction = surface_reduction
+        ) * model_spec[["scaling_factor"]],
+        siteInfo
+      ), 
+      mappingTable = mappingTable
+    ),
+    classBreaks = model_spec[["breaks"]],
+    colorVector = MisaColor
+  )
+  
+  v <- unlist(lapply(ext_rivers, function(x){x$data$value}))
+  berlinWide <- 
+    if(grepl(pattern = "hours", x = type) | type == "negative_deviation"){
+      median(v, na.rm = TRUE)
+    } else if(type == "critical_events"){
+      d <- unlist(lapply(ext_rivers, function(x){x$data$distance_to_neighbour}))
+      mean(v * d  / sum(d), na.rm = TRUE) * length(d)
+    }
+  
   list(
-    ext_rivers = value_to_classes(
-      river_list = prepare_rivers(
-        rivers, 
-        df_in = cbind(
-          "value" = sapply(
-            model_spec[["model"]], 
-            FUN = model_spec[["defModel"]], 
-            surface_reduction = surface_reduction
-          ) * model_spec[["scaling_factor"]],
-          siteInfo
-        ), 
-        mappingTable = mappingTable
-      ),
-      classBreaks = model_spec[["breaks"]],
-      colorVector = MisaColor
-    ), 
-    LegendTitle = add_context_to_title(model_spec[["title"]]), 
-    xlim = xlim,
-    ylim = ylim,
-    districPolygons = districPolygons, 
-    waterPolygons = waterPolygons,
-    xpdDim = xpdDim, 
-    width_factor = width_factor
+    "plot_args" = list(
+      ext_rivers = ext_rivers, 
+      LegendTitle = add_context_to_title(model_spec[["title"]]), 
+      xlim = xlim,
+      ylim = ylim,
+      districPolygons = districPolygons, 
+      waterPolygons = waterPolygons,
+      xpdDim = xpdDim, 
+      width_factor = width_factor), 
+    "additional_values" = list(
+      overflowVolume = overflowVolume_miom3,
+      berlinWide = berlinWide
+    )
   )
 }
