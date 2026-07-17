@@ -145,10 +145,17 @@ test_that("calculate_water_balance() works", {
   check_water_balance(result$water_balance_original)
   
   expect_equal(names(result$statistics), c(
-    "with_measures",
-    "original",
+    "water_balance",
     "runoff_reduction_percent",
     "water_quality_indicators"
   ))
+
+  expected_fields <- c("status_quo", "with_measures")
+  expect_equal(names(result$statistics$water_balance), expected_fields)
+  expect_equal(names(result$statistics$water_quality_indicators), expected_fields)
+
+  expected_fields <- c("overflow_volume", "critical_hours", "critical_events")
+  expect_equal(names(result$statistics$water_quality_indicators$status_quo), expected_fields)
+  expect_equal(names(result$statistics$water_quality_indicators$with_measures), expected_fields)
   
 })
