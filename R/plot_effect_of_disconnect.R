@@ -60,7 +60,6 @@ plot_effect_of_disconnect <- function(
   }
   
   invisible(filename)
-  return(plot_fun_args$additional_values)
 }
 
 #' @importFrom utils read.csv
