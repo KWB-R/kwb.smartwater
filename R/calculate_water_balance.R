@@ -109,6 +109,10 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
   runoff_before <- area_weighted("runoff", water_balance_before)
   runoff_after <- area_weighted("runoff", water_balance_after)
   
+  runoff_reduction_percent <- 100 * (
+    1 - safe_division(runoff_after, runoff_before)
+  )
+  
   list(
     water_balance_with_measures = water_balance_after,
     water_balance_original = water_balance_before,
@@ -123,10 +127,41 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
         infiltr = area_weighted("infiltr", water_balance_before),
         evapor = area_weighted("evapor", water_balance_before)
       ),
-      runoff_reduction_percent = 100 * (
-        1 - safe_division(runoff_after, runoff_before)
+      runoff_reduction_percent = runoff_reduction_percent,
+      water_quality_indicators = get_water_quality_indicators(
+        runoff_reduction_percent
       )
     )
+  )
+}
+
+get_water_quality_indicators <- function(surface_reduction) {
+  
+  # calculate berlin-wide effect for each of the following types
+  types <- c(
+    "critical_hours", 
+    "unpleasant_hours", 
+    "critical_events", 
+    "negative_deviation"
+  )
+  
+  additional_values <- lapply(
+    X = stats::setNames(nm = types), 
+    FUN = function(type) {
+      get_plot_fun_args_for_surface_reduction(
+        surface_reduction = surface_reduction, 
+        type = type
+      )$additional_values
+    }
+  )
+  
+  # check that the overflow volume is always the same  
+  overflow_volumes <- sapply(additional_values, `[[`, "overflowVolume")
+  stopifnot(kwb.utils::allAreEqual(overflow_volumes))
+  
+  c(
+    list(overflow_volume = overflow_volumes[[1L]]),
+    lapply(additional_values, `[[`, "berlinWide")
   )
 }
 
