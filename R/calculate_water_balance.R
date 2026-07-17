@@ -75,7 +75,7 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
       
       # paving measures
       for (measure_name in c("unpaving", "permeable_paving")) {
-        measure_value <- measures[[measure_name]][i]
+        measure_value <- block_measures[[measure_name]]
         if (measure_value > 0) {
           areas_m2 <- apply_measure(
             areas = areas_m2, 

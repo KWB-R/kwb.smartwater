@@ -19,9 +19,11 @@ Imports:
     kwb.utils
 Suggests: 
     covr,
-    plumber2
+    plumber2,
+    testthat (>= 3.0.0)
 Remotes:
     github::kwb-r/kwb.rabimo@intensive-green-roof,
     github::kwb-r/kwb.utils
 Config/roxygen2/version: 8.0.0
 RoxygenNote: 7.3.3
+Config/testthat/edition: 3
