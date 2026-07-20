@@ -46,11 +46,11 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
       urban = water_balance_before
     )
   )
-
+  
   # Prepare vectors with names of fields/columns (= names of measures)
   fields_green_roof <- get_measure_info("green_roof", TRUE)
   fields_inf_ret <- get_measure_info(c("infiltration", "retention"), TRUE)
-
+  
   # Calculate absolute areas in m2 from area percentages and add one column per
   # measure
   all_areas_m2 <- rabimo_block_to_partial_areas_m2(blocks)
@@ -100,7 +100,7 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
       urban = water_balance_after
     )
   )
-
+  
   area_weighted <- function(pathway, water_balance) {
     area <- water_balance[["area"]]
     sum(water_balance[[pathway]] * area) / sum(area)
@@ -109,24 +109,63 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
   runoff_before <- area_weighted("runoff", water_balance_before)
   runoff_after <- area_weighted("runoff", water_balance_after)
   
+  runoff_reduction_percent <- 100 * (
+    1 - safe_division(runoff_after, runoff_before)
+  )
+  
   list(
     water_balance_with_measures = water_balance_after,
     water_balance_original = water_balance_before,
     statistics = list(
-      with_measures = data.frame(
-        runoff = runoff_after,
-        infiltr = area_weighted("infiltr", water_balance_after),
-        evapor = area_weighted("evapor", water_balance_after)
+      water_balance = list(
+        status_quo = data.frame(
+          runoff = runoff_before,
+          infiltr = area_weighted("infiltr", water_balance_before),
+          evapor = area_weighted("evapor", water_balance_before),
+          delta_w = area_weighted("delta_w", water_balance_before)
+        ),
+        with_measures = data.frame(
+          runoff = runoff_after,
+          infiltr = area_weighted("infiltr", water_balance_after),
+          evapor = area_weighted("evapor", water_balance_after),
+          delta_w = area_weighted("delta_w", water_balance_after)
+        )
       ),
-      original = data.frame(
-        runoff = runoff_before,
-        infiltr = area_weighted("infiltr", water_balance_before),
-        evapor = area_weighted("evapor", water_balance_before)
-      ),
-      runoff_reduction_percent = 100 * (
-        1 - safe_division(runoff_after, runoff_before)
+      runoff_reduction_percent = runoff_reduction_percent,
+      water_quality_indicators = list(
+        status_quo = get_water_quality_indicators(
+          surface_reduction = 0
+        ),
+        with_measures = get_water_quality_indicators(
+          surface_reduction = runoff_reduction_percent
+        )
       )
     )
+  )
+}
+
+get_water_quality_indicators <- function(
+    surface_reduction, 
+    types = c("critical_hours", "critical_events")
+) {
+  
+  additional_values <- lapply(
+    X = stats::setNames(nm = types), 
+    FUN = function(type) {
+      get_plot_fun_args_for_surface_reduction(
+        surface_reduction = surface_reduction, 
+        type = type
+      )$additional_values
+    }
+  )
+  
+  # check that the overflow volume is always the same  
+  overflow_volumes <- sapply(additional_values, `[[`, "overflowVolume")
+  stopifnot(kwb.utils::allAreEqual(overflow_volumes))
+  
+  c(
+    list(overflow_volume = overflow_volumes[[1L]]),
+    lapply(additional_values, `[[`, "berlinWide")
   )
 }
 
@@ -173,7 +212,7 @@ update_block <- function(block, areas_m2, check = TRUE) {
     stopifnot(sum(unlist(block[fields_green_roof])) <= 1)
     stopifnot(sum(unlist(block[fields_inf_ret])) <= 1)
   }
-
+  
   block
 }
 

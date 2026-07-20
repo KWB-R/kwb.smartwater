@@ -22,6 +22,7 @@ function(type = character(0), field_name_only = FALSE)
 #* Run R-Abimo for a given set of block areas and a given set of corresponding measures.
 #* @param blocks:data.frame Array of block areas, as e.g. returned by /get_test_blocks
 #* @param measures:data.frame Array of objects containing information about the planned measures in m2. Each object has a text field "code" that identifies the block area to which the measures relate. All other fields are numeric and relate to a measure type. See /get_test_block_measures for an example object and for the expected measure names.
+#* @serializer unboxedJSON
 function(
     blocks = kwb.smartwater::get_test_blocks(), 
     measures = kwb.smartwater::get_test_block_measures()

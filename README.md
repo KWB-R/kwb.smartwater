@@ -1,4 +1,4 @@
-[![R-CMD-check](https://github.com/KWB-R/kwb.smartwater/workflows/R-CMD-check/badge.svg)](https://github.com/KWB-R/kwb.smartwater/actions?query=workflow%3AR-CMD-check)
+[![R-CMD-check](https://github.com/KWB-R/kwb.smartwater/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/KWB-R/kwb.smartwater/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/KWB-R/kwb.smartwater/workflows/pkgdown/badge.svg)](https://github.com/KWB-R/kwb.smartwater/actions?query=workflow%3Apkgdown)
 [![codecov](https://codecov.io/github/KWB-R/kwb.smartwater/branch/main/graphs/badge.svg)](https://codecov.io/github/KWB-R/kwb.smartwater)
 [![Project Status](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
