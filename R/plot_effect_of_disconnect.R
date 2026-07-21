@@ -123,7 +123,7 @@ get_plot_fun_args_for_surface_reduction <- function(
       scaling_factor = 100,
       defModel = defHourModel,
       breaks = c(0, 2, 5, 10, 20, 30, Inf),
-      title = "Negative Abwichung vom Referenzustand (in %)"
+      title = "Negative Abweichung vom Referenzustand (in %)"
     )
   )
 

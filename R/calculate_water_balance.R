@@ -114,8 +114,10 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
   )
   
   list(
-    water_balance_with_measures = water_balance_after,
-    water_balance_original = water_balance_before,
+    water_balance = list(
+      status_quo = water_balance_before,
+      with_measures = water_balance_after
+    ),
     statistics = list(
       water_balance = list(
         status_quo = data.frame(

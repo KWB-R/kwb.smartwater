@@ -125,9 +125,13 @@ test_that("calculate_water_balance() works", {
   
   expect_true(is.list(result))
   expect_equal(names(result), c(
-    "water_balance_with_measures",
-    "water_balance_original",
+    "water_balance",
     "statistics"
+  ))
+
+  expect_equal(names(result$water_balance), c(
+    "status_quo",
+    "with_measures"
   ))
   
   check_water_balance <- function(df) {
@@ -141,8 +145,8 @@ test_that("calculate_water_balance() works", {
     ))
   }
   
-  check_water_balance(result$water_balance_with_measures)
-  check_water_balance(result$water_balance_original)
+  check_water_balance(result$water_balance$with_measures)
+  check_water_balance(result$water_balance$status_quo)
   
   expect_equal(names(result$statistics), c(
     "water_balance",
