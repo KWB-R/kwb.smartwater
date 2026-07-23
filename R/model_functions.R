@@ -489,16 +489,9 @@ plot_rivers <- function(
     ylim,
     districPolygons = read_district_polygons(), 
     waterPolygons = read_water_polygons(), 
-    xpdDim = 6, 
-    width_factor = 10/6.789581
+    margins = c(1, 1, 3 , 1)
 )
 {
-  margins <- c(
-    xpdDim / 2, 
-    0.2, 
-    xpdDim / 2 , 
-    xpdDim * width_factor - 0.2
-  )
   old_par <- par(mar = margins)
   on.exit(par(old_par))
   

@@ -1,3 +1,7 @@
+# kwb.smartwater v0.2.0
+
+Changed interface to the plot-related functions, allowing to specify the margins
+
 # kwb.smartwater v0.1.0
 
 First version to be used by the Smartwater Web App, developed by 

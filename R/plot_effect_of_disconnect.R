@@ -6,7 +6,11 @@
 #' @param output_dir if \code{NULL} (the default), the plot goes into the active
 #'   device, otherwise the plot is written to a png file within 
 #'   \code{output_dir} (must be an existing directory)
-#' @param width_factor width factor. Default: 10/6.789581
+#' @param png_args list of arguments passed to \code{\link{png}}. Default:
+#'   \code{list(width = 6 * width_factor, height = 6, units = "in", res = 600)}
+#' @param margins numerical vector of the form c(bottom, left, top, right) which 
+#'   gives the number of lines of margin to be specified on the four sides of 
+#'   the plot. The default is \code{c(1, 1, 3 , 1)}.
 #' @return path to created file (invisibly) if \code{output_dir} is not 
 #'   \code{NULL}, otherwise \code{NULL} (invisibly)
 #' @export
@@ -14,7 +18,13 @@ plot_effect_of_disconnect <- function(
     surface_reduction, 
     type, 
     output_dir = NULL, # "./inst/extdata/output", 
-    width_factor = 10/6.789581
+    png_args = list(
+      width = 9, 
+      height = 6 , 
+      units = "in", 
+      res = 600
+    ),
+    margins = c(1, 1, 3 , 1)
 )
 {
   if (FALSE) 
@@ -31,11 +41,11 @@ plot_effect_of_disconnect <- function(
     "critical_events",   # Kritische Events
     "negative_deviation" # Negative Abweichung
   ))
-  
+
   plot_fun_args <- get_plot_fun_args_for_surface_reduction(
     surface_reduction, 
     type = type, 
-    width_factor = width_factor
+    margins = margins
   )
 
   filename <- if (!is.null(output_dir) && dir.exists(output_dir)) {
@@ -46,12 +56,7 @@ plot_effect_of_disconnect <- function(
     filename <- file.path(output_dir, paste0(surface_reduction, "_", type, ".png"))
     plot_into_png_generic(
       filename = filename, 
-      png_args = list(
-        width = 6 * width_factor, 
-        height = 6 , 
-        units = "in", 
-        res = 600
-      ),
+      png_args = png_args,
       plot_fun = plot_rivers,
       plot_fun_args = plot_fun_args$plot_args
     )
@@ -74,8 +79,7 @@ get_plot_fun_args_for_surface_reduction <- function(
     waterPolygons = read_water_polygons(),
     xlim = c(13.18, 13.47),
     ylim = c(52.45, 52.57),
-    xpdDim = 6,
-    width_factor = 10/6.789581
+    margins = c(1, 1, 3 , 1)
 ) {
   
   allowed_types <- c(
@@ -148,13 +152,12 @@ get_plot_fun_args_for_surface_reduction <- function(
   )
   
   v <- unlist(lapply(ext_rivers, function(x){x$data$value}))
-  berlinWide <- 
-    if(grepl(pattern = "hours", x = type) | type == "negative_deviation"){
-      stats::median(v, na.rm = TRUE)
-    } else if(type == "critical_events"){
-      d <- unlist(lapply(ext_rivers, function(x){x$data$distance_to_neighbour}))
-      mean(v * d  / sum(d), na.rm = TRUE) * length(d)
-    }
+  berlinWide <- if (grepl(pattern = "hours", x = type) || type == "negative_deviation") {
+    stats::median(v, na.rm = TRUE)
+  } else if(type == "critical_events"){
+    d <- unlist(lapply(ext_rivers, function(x){x$data$distance_to_neighbour}))
+    mean(v * d  / sum(d), na.rm = TRUE) * length(d)
+  }
   
   list(
     plot_args = list(
@@ -164,8 +167,8 @@ get_plot_fun_args_for_surface_reduction <- function(
       ylim = ylim,
       districPolygons = districPolygons, 
       waterPolygons = waterPolygons,
-      xpdDim = xpdDim, 
-      width_factor = width_factor), 
+      margins = margins
+    ), 
     additional_values = list(
       overflowVolume = overflowVolume_miom3,
       berlinWide = berlinWide

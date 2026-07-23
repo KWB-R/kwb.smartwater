@@ -125,7 +125,10 @@ function(runoff_reduction, type)
   file <- kwb.smartwater::plot_effect_of_disconnect(
     surface_reduction = as.numeric(runoff_reduction), 
     type = type, 
-    output_dir = tempdir()
+    output_dir = tempdir(),
+    # numerical vector of the form c(bottom, left, top, right) which gives the 
+    # number of lines of margin to be specified on the four sides of the plot
+    margins = c(1, 1, 3, 1)
   )
   readBin(file, "raw", n = file.info(file)$size)
 }
