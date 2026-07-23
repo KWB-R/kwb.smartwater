@@ -9,7 +9,8 @@ plot_effect_of_disconnect(
   surface_reduction,
   type,
   output_dir = NULL,
-  width_factor = 10/6.789581
+  png_args = list(width = 9, height = 6, units = "in", res = 600),
+  margins = c(1, 1, 3, 1)
 )
 ```
 
@@ -30,9 +31,17 @@ plot_effect_of_disconnect(
   otherwise the plot is written to a png file within `output_dir` (must
   be an existing directory)
 
-- width_factor:
+- png_args:
 
-  width factor. Default: 10/6.789581
+  list of arguments passed to
+  [`png`](https://rdrr.io/r/grDevices/png.html). Default:
+  `list(width = 6 * width_factor, height = 6, units = "in", res = 600)`
+
+- margins:
+
+  numerical vector of the form c(bottom, left, top, right) which gives
+  the number of lines of margin to be specified on the four sides of the
+  plot. The default is `c(1, 1, 3 , 1)`.
 
 ## Value
 

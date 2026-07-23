@@ -14,13 +14,13 @@ Source:
 [`DESCRIPTION`](https://github.com/KWB-R/kwb.smartwater/blob/main/DESCRIPTION)
 
 Sonnenberg H (2026). *kwb.smartwater: Functions Related to the
-SmartWater Project*. R package version 0.1.0,
+SmartWater Project*. R package version 0.2.0,
 <https://github.com/KWB-R/kwb.smartwater>.
 
     @Manual{,
       title = {kwb.smartwater: Functions Related to the SmartWater Project},
       author = {Hauke Sonnenberg},
       year = {2026},
-      note = {R package version 0.1.0},
+      note = {R package version 0.2.0},
       url = {https://github.com/KWB-R/kwb.smartwater},
     }
