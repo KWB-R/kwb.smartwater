@@ -2,5 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+.idea
 docs
 tests/testthat/Rplots*.pdf
+inst/extdata/output
