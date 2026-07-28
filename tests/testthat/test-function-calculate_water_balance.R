@@ -128,7 +128,7 @@ test_that("calculate_water_balance() works", {
     "water_balance",
     "statistics"
   ))
-
+  
   expect_equal(names(result$water_balance), c(
     "status_quo",
     "with_measures"
@@ -153,11 +153,11 @@ test_that("calculate_water_balance() works", {
     "runoff_reduction_percent",
     "water_quality_indicators"
   ))
-
+  
   expected_fields <- c("status_quo", "with_measures")
   expect_equal(names(result$statistics$water_balance), expected_fields)
   expect_equal(names(result$statistics$water_quality_indicators), expected_fields)
-
+  
   expected_fields <- c("overflow_volume", "critical_hours", "critical_events")
   expect_equal(names(result$statistics$water_quality_indicators$status_quo), expected_fields)
   expect_equal(names(result$statistics$water_quality_indicators$with_measures), expected_fields)
@@ -165,9 +165,31 @@ test_that("calculate_water_balance() works", {
 })
 
 test_that("existing green roofs are always considered", {
-  data <- sf::st_drop_geometry(kwb.rabimo::rabimo_inputs_2025$data)
-  # blocks <- data[which(data$green_roof > 0.2)[1:2],]
-  blocks <- data[data$code == "0101020081000000",]
+  blocks <- data.frame(
+    code = "0101020081000000",
+    prec_yr = 621L,
+    prec_s = 327L,
+    epot_yr = 666L,
+    epot_s = 509L,
+    total_area = 10781.6437917747,
+    roof = 0.9442467,
+    green_roof = 0.3203,
+    swg_roof = 0.94,
+    pvd = 0.0424017,
+    swg_pvd = 0.84,
+    srf1_pvd = 0.5,
+    srf2_pvd = 0.34,
+    srf3_pvd = 0.09,
+    srf4_pvd = 0.07,
+    srf5_pvd = 0,
+    to_swale = 0,
+    gw_dist = 3.4,
+    ufc30 = 11,
+    ufc150 = 10,
+    land_type = "urban",
+    veg_class = 0,
+    irrigation = 0L
+  )
   measures <- kwb.smartwater::get_test_block_measures(codes = blocks$code, value = 0)
   result <- kwb.smartwater::calculate_water_balance(blocks, measures)
   expect_equal(result$water_balance$status_quo, result$water_balance$with_measures)
