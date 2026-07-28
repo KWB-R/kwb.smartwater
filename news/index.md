@@ -1,5 +1,9 @@
 # Changelog
 
+## kwb.smartwater v0.2.1
+
+Fix bug in considering existing green roofs for status quo calculation
+
 ## kwb.smartwater v0.2.0
 
 Changed interface to the plot-related functions, allowing to specify the
