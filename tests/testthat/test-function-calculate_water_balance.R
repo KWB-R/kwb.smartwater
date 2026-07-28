@@ -163,3 +163,12 @@ test_that("calculate_water_balance() works", {
   expect_equal(names(result$statistics$water_quality_indicators$with_measures), expected_fields)
   
 })
+
+test_that("existing green roofs are always considered", {
+  data <- sf::st_drop_geometry(kwb.rabimo::rabimo_inputs_2025$data)
+  # blocks <- data[which(data$green_roof > 0.2)[1:2],]
+  blocks <- data[data$code == "0101020081000000",]
+  measures <- kwb.smartwater::get_test_block_measures(codes = blocks$code, value = 0)
+  result <- kwb.smartwater::calculate_water_balance(blocks, measures)
+  expect_equal(result$water_balance$status_quo, result$water_balance$with_measures)
+})

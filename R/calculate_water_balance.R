@@ -36,9 +36,14 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
     config = config
   )
   
-  # Run R-Abimo without measures (added by the user, green_roof may already be 
-  # there in the blocks)
-  water_balance_before <- kwb.rabimo::run_rabimo(blocks, config)
+  # Run R-Abimo without measures added by the user (green_roof may already be 
+  # there in the block, it must therefore be renamed into green_roof_ext as per 
+  # config)
+  water_balance_before <- kwb.rabimo::run_rabimo(
+    kwb.utils::renameColumns(blocks, list(green_roof = "green_roof_ext")),
+    config
+  )
+  
   water_balance_before <- add_delta_w(
     water_balance = water_balance_before, 
     delta_w = kwb.rabimo::calculate_delta_w(
@@ -66,11 +71,11 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
       block_measures <- measures[measures$code == block$code, ]
       
       # green roof measures: increase the green roof area
-      areas_m2[, fields_green_roof] <- areas_m2[, fields_green_roof] +
+      areas_m2[fields_green_roof] <- areas_m2[fields_green_roof] +
         block_measures[fields_green_roof]
       
       # infiltration and retention measures: increase the connected area
-      areas_m2[, fields_inf_ret] <- areas_m2[, fields_inf_ret] +
+      areas_m2[fields_inf_ret] <- areas_m2[fields_inf_ret] +
         block_measures[fields_inf_ret]
       
       # paving measures
