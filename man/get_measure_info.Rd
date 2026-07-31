@@ -4,7 +4,11 @@
 \alias{get_measure_info}
 \title{Get info on the measures supported by kwb.smartwater}
 \usage{
-get_measure_info(type = character(0), field_name_only = FALSE)
+get_measure_info(
+  type = character(0),
+  field_name_only = FALSE,
+  parameters_only = FALSE
+)
 }
 \arguments{
 \item{type}{optional. Vector of character indicating the measure types
@@ -12,7 +16,11 @@ get_measure_info(type = character(0), field_name_only = FALSE)
 to filter the output.}
 
 \item{field_name_only}{optional. Logical of length one indicating whether or
-not to return only the "field_name" instead of all info fields per measure}
+not to return only the "field_name" instead of all info fields per measure.
+Default is FALSE.}
+
+\item{parameters_only}{if TRUE only returns parameters for each measure.
+Default is FALSE.}
 }
 \description{
 Get information on the rainwater management measures supported by

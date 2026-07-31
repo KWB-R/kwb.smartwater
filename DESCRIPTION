@@ -1,6 +1,6 @@
 Package: kwb.smartwater
 Title: Functions Related to the SmartWater Project
-Version: 0.2.1
+Version: 0.3.0
 Authors@R: c(
     person("Hauke", "Sonnenberg", , "hauke.sonnenberg@kompetenz-wasser.de", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-9134-2871")),
@@ -22,7 +22,7 @@ Suggests:
     plumber2,
     testthat (>= 3.0.0)
 Remotes:
-    github::kwb-r/kwb.rabimo@dev,
+    github::kwb-r/kwb.rabimo@v2.2.0,
     github::kwb-r/kwb.utils
 Config/roxygen2/version: 8.0.0
 RoxygenNote: 7.3.3

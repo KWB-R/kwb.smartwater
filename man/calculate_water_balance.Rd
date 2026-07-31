@@ -4,7 +4,13 @@
 \alias{calculate_water_balance}
 \title{Calculate Water Balance for Given Block Areas and Measures}
 \usage{
-calculate_water_balance(blocks, measures, convert_types = FALSE)
+calculate_water_balance(
+  blocks,
+  measures,
+  parameters = NULL,
+  convert_types = FALSE,
+  max_veg_class = 80
+)
 }
 \arguments{
 \item{blocks}{data.frame as returned by \code{\link{get_test_blocks}}}
@@ -15,8 +21,18 @@ in m2. Each row refers to a block area, linked by the text field
 measure-related fields must correspond to the \code{field_name}s returned
 by \code{\link{get_measure_info}}.}
 
+\item{parameters}{optional. List of parameters for each measure for which
+parameter values shall be overridden. Its format should refer to the format
+of the list returned by \code{\link{get_measure_info}(parameters_only =
+  TRUE)}.}
+
 \item{convert_types}{logical value indicating whether or not to convert the
 data types in the \code{blocks} data frame as required by R-ABIMO.}
+
+\item{max_veg_class}{maximum vegetation class value. When increasing the
+vegetation class index in order to consider tree measures, the resulting
+vegetation class index of a block will be limited to this value. The
+default is 80.}
 }
 \description{
 Calculate Water Balance for Given Block Areas and Measures

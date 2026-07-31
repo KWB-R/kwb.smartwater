@@ -6,15 +6,30 @@
 #'   \code{code}. There is one numeric field per measure. The names of the
 #'   measure-related fields must correspond to the \code{field_name}s returned 
 #'   by \code{\link{get_measure_info}}.
+#' @param parameters optional. List of parameters for each measure for which
+#'   parameter values shall be overridden. Its format should refer to the format
+#'   of the list returned by \code{\link{get_measure_info}(parameters_only =
+#'   TRUE)}.
 #' @param convert_types logical value indicating whether or not to convert the
 #'   data types in the \code{blocks} data frame as required by R-ABIMO.
+#' @param max_veg_class maximum vegetation class value. When increasing the
+#'   vegetation class index in order to consider tree measures, the resulting
+#'   vegetation class index of a block will be limited to this value. The
+#'   default is 80.
 #' @export
-calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
+calculate_water_balance <- function(
+    blocks,
+    measures,
+    parameters = NULL,
+    convert_types = FALSE,
+    max_veg_class = 80
+) {
   
-  #blocks <- kwb.smartwater::get_test_blocks()
-  #measures <- kwb.smartwater::get_test_block_measures()
-  #convert_types = FALSE
-  #kwb.utils::assignPackageObjects("kwb.smartwater")
+  # blocks <- kwb.smartwater::get_test_blocks()
+  # measures <- kwb.smartwater::get_test_block_measures()
+  # parameters = get_measure_info(parameters_only = TRUE)
+  # convert_types = FALSE
+  # kwb.utils::assignPackageObjects("kwb.smartwater")
   
   # kwb.rabimo is strict about data types. Therefore, convert data types as
   # necessary
@@ -28,7 +43,7 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
   }
   
   config <- kwb.rabimo:::reconfigure(kwb.rabimo::rabimo_inputs_2025$config)
-  config[["measures"]] <- get_measures_config()
+  config[["measures"]] <- get_measures_config(parameters)
   
   # Calculate water balance for natural state
   water_balance_natural <- kwb.rabimo::run_rabimo(
@@ -89,7 +104,16 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
         }
       }
       
-      # TODO: tree measures
+      # tree measures
+      veg_class_increment <- get_veg_class_increment(
+        tree_measure_volume = get_tree_measure_volume(block_measures, parameters),
+        unsealed_area_m2 = areas_m2$unsealed
+      )
+      block$veg_class <- min(
+        block$veg_class + veg_class_increment, 
+        max_veg_class
+      )
+      
     }
     
     # Calculate m2 back into percentages
@@ -234,17 +258,22 @@ add_delta_w <- function(water_balance, delta_w) {
   cbind(water_balance, delta_w = delta_w[["delta_w"]])
 }
 
-get_measures_config <- function() {
+get_measures_config <- function(parameters = NULL) {
   lapply(
     X = stats::setNames(nm = c("green_roof", "infiltration", "retention")), 
     FUN = function(type) {
-      abimo_parameters <- lapply(get_measure_info(type), function(x) {
+      parameters <- lapply(get_measure_info(type), function(x) {
+        input_column <- x[["field_name"]]
         c(
-          list(input_column = x[["field_name"]]),
-          x[["abimo_parameters"]]
+          list(input_column = input_column),
+          if (!is.null(parameters) && length(parameters[[input_column]])) {
+            parameters[[input_column]] 
+          } else {
+            x[["parameters"]]
+          }
         )
       })
-      abimo_parameters[!sapply(abimo_parameters, is.null)]
+      parameters[!sapply(parameters, is.null)]
     }
   )
 }
