@@ -7,7 +7,7 @@
 calculate_water_balance(
   blocks,
   measures,
-  parameters = get_measure_info(parameters_only = TRUE),
+  parameters = NULL,
   convert_types = FALSE
 )
 }
@@ -20,8 +20,10 @@ in m2. Each row refers to a block area, linked by the text field
 measure-related fields must correspond to the \code{field_name}s returned
 by \code{\link{get_measure_info}}.}
 
-\item{parameters}{optional. list of parameters for each measure as returned
-by \code{\link{get_measure_info}(parameters_only = TRUE)}.}
+\item{parameters}{optional.List of parameters for each measure for which
+parameter values shall be overridden. Its format should refer to the format
+of the list returned by \code{\link{get_measure_info}(parameters_only =
+  TRUE)}.}
 
 \item{convert_types}{logical value indicating whether or not to convert the
 data types in the \code{blocks} data frame as required by R-ABIMO.}

@@ -64,7 +64,9 @@ get_measure_info <- function(
       field_name = "trees_lg",
       long_name_de = "B\u00e4ume (gro\u00df)", 
       parameters = list(
-        tree_volume = 400
+        # 440 m3 determined for Bayerischer Platz, Berlin, rounded down to 
+        # nearest multiple of 100
+        tree_volume = 400 
       )
     ),
     list(
@@ -143,7 +145,7 @@ get_measure_info <- function(
   }
   if (parameters_only) {
     return(stats::setNames(
-      collect(measures, "parameters"),
+      lapply(measures, `[[`, "parameters"),
       collect(measures, "field_name")
       ))
   }

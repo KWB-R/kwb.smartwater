@@ -194,3 +194,39 @@ test_that("existing green roofs are always considered", {
   result <- kwb.smartwater::calculate_water_balance(blocks, measures)
   expect_equal(result$water_balance$status_quo, result$water_balance$with_measures)
 })
+
+
+test_that("trees increase evaporation", {
+  blocks <- data.frame(
+    code = "test",
+    prec_yr = 621L,
+    prec_s = 327L,
+    epot_yr = 666L,
+    epot_s = 509L,
+    total_area = 10000,
+    roof = 0.3,
+    green_roof = 0.3203,
+    swg_roof = 0.94,
+    pvd = 0.3,
+    swg_pvd = 0.84,
+    srf1_pvd = 0.5,
+    srf2_pvd = 0.34,
+    srf3_pvd = 0.09,
+    srf4_pvd = 0.07,
+    srf5_pvd = 0,
+    to_swale = 0,
+    gw_dist = 3.4,
+    ufc30 = 11,
+    ufc150 = 10,
+    land_type = "urban",
+    veg_class = 20,
+    irrigation = 0L
+  )
+  measures <- kwb.smartwater::get_test_block_measures(
+    codes = blocks$code, value = 0)
+  measures$trees_md <- 30
+  results <- kwb.smartwater::calculate_water_balance(blocks, measures)
+  
+  expect_true(results$water_balance$status_quo$evapor <= 
+                results$water_balance$with_measures$evapor)
+})

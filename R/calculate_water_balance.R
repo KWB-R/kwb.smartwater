@@ -6,22 +6,26 @@
 #'   \code{code}. There is one numeric field per measure. The names of the
 #'   measure-related fields must correspond to the \code{field_name}s returned 
 #'   by \code{\link{get_measure_info}}.
-#' @param parameters optional. list of parameters for each measure as returned
-#'   by \code{\link{get_measure_info}(parameters_only = TRUE)}. 
+#' @param parameters optional.List of parameters for each measure for which
+#'   parameter values shall be overridden. Its format should refer to the format
+#'   of the list returned by \code{\link{get_measure_info}(parameters_only =
+#'   TRUE)}.
 #' @param convert_types logical value indicating whether or not to convert the
 #'   data types in the \code{blocks} data frame as required by R-ABIMO.
 #' @export
 calculate_water_balance <- function(
     blocks,
     measures,
-    parameters = get_measure_info(parameters_only = TRUE),
-    convert_types = FALSE
+    parameters = NULL,
+    convert_types = FALSE,
+    max_veg_class = 80
 ) {
   
-  #blocks <- kwb.smartwater::get_test_blocks()
-  #measures <- kwb.smartwater::get_test_block_measures()
-  #convert_types = FALSE
-  #kwb.utils::assignPackageObjects("kwb.smartwater")
+  # blocks <- kwb.smartwater::get_test_blocks()
+  # measures <- kwb.smartwater::get_test_block_measures()
+  # parameters = get_measure_info(parameters_only = TRUE)
+  # convert_types = FALSE
+  # kwb.utils::assignPackageObjects("kwb.smartwater")
   
   # kwb.rabimo is strict about data types. Therefore, convert data types as
   # necessary
@@ -96,7 +100,16 @@ calculate_water_balance <- function(
         }
       }
       
-      # TODO: tree measures
+      # tree measures
+      veg_class_increment <- get_veg_class_increment(
+        tree_measure_volume = get_tree_measure_volume(block_measures, parameters),
+        unsealed_area_m2 = areas_m2$unsealed
+      )
+      block$veg_class <- min(
+        block$veg_class + veg_class_increment, 
+        max_veg_class
+      )
+      
     }
     
     # Calculate m2 back into percentages
