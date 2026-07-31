@@ -1,3 +1,10 @@
+# kwb.smartwater v0.3.0
+
+In this version,
+
+- tree measures are considered by increasing the vegetation class,
+- default model parameters can be overridden.
+
 # kwb.smartwater v0.2.1
 
 Fix bug in considering existing green roofs for status quo calculation
