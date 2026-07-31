@@ -12,6 +12,10 @@
 #'   TRUE)}.
 #' @param convert_types logical value indicating whether or not to convert the
 #'   data types in the \code{blocks} data frame as required by R-ABIMO.
+#' @param max_veg_class maximum vegetation class value. When increasing the
+#'   vegetation class index in order to consider tree measures, the resulting
+#'   vegetation class index of a block will be limited to this value. The
+#'   default is 80.
 #' @export
 calculate_water_balance <- function(
     blocks,

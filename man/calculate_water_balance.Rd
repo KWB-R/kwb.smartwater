@@ -8,7 +8,8 @@ calculate_water_balance(
   blocks,
   measures,
   parameters = NULL,
-  convert_types = FALSE
+  convert_types = FALSE,
+  max_veg_class = 80
 )
 }
 \arguments{
@@ -27,6 +28,11 @@ of the list returned by \code{\link{get_measure_info}(parameters_only =
 
 \item{convert_types}{logical value indicating whether or not to convert the
 data types in the \code{blocks} data frame as required by R-ABIMO.}
+
+\item{max_veg_class}{maximum vegetation class value. When increasing the
+vegetation class index in order to consider tree measures, the resulting
+vegetation class index of a block will be limited to this value. The
+default is 80.}
 }
 \description{
 Calculate Water Balance for Given Block Areas and Measures
