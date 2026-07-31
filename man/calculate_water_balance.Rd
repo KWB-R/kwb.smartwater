@@ -4,7 +4,12 @@
 \alias{calculate_water_balance}
 \title{Calculate Water Balance for Given Block Areas and Measures}
 \usage{
-calculate_water_balance(blocks, measures, convert_types = FALSE)
+calculate_water_balance(
+  blocks,
+  measures,
+  parameters = get_measure_info(parameters_only = TRUE),
+  convert_types = FALSE
+)
 }
 \arguments{
 \item{blocks}{data.frame as returned by \code{\link{get_test_blocks}}}
@@ -14,6 +19,9 @@ in m2. Each row refers to a block area, linked by the text field
 \code{code}. There is one numeric field per measure. The names of the
 measure-related fields must correspond to the \code{field_name}s returned
 by \code{\link{get_measure_info}}.}
+
+\item{parameters}{optional. list of parameters for each measure as returned
+by \code{\link{get_measure_info}(parameters_only = TRUE)}.}
 
 \item{convert_types}{logical value indicating whether or not to convert the
 data types in the \code{blocks} data frame as required by R-ABIMO.}

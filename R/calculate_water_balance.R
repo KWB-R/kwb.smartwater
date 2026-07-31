@@ -6,10 +6,17 @@
 #'   \code{code}. There is one numeric field per measure. The names of the
 #'   measure-related fields must correspond to the \code{field_name}s returned 
 #'   by \code{\link{get_measure_info}}.
+#' @param parameters optional. list of parameters for each measure as returned
+#'   by \code{\link{get_measure_info}(parameters_only = TRUE)}. 
 #' @param convert_types logical value indicating whether or not to convert the
 #'   data types in the \code{blocks} data frame as required by R-ABIMO.
 #' @export
-calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
+calculate_water_balance <- function(
+    blocks,
+    measures,
+    parameters = get_measure_info(parameters_only = TRUE),
+    convert_types = FALSE
+) {
   
   #blocks <- kwb.smartwater::get_test_blocks()
   #measures <- kwb.smartwater::get_test_block_measures()
@@ -28,7 +35,7 @@ calculate_water_balance <- function(blocks, measures, convert_types = FALSE) {
   }
   
   config <- kwb.rabimo:::reconfigure(kwb.rabimo::rabimo_inputs_2025$config)
-  config[["measures"]] <- get_measures_config()
+  config[["measures"]] <- get_measures_config(parameters)
   
   # Calculate water balance for natural state
   water_balance_natural <- kwb.rabimo::run_rabimo(
@@ -234,17 +241,22 @@ add_delta_w <- function(water_balance, delta_w) {
   cbind(water_balance, delta_w = delta_w[["delta_w"]])
 }
 
-get_measures_config <- function() {
+get_measures_config <- function(parameters = NULL) {
   lapply(
     X = stats::setNames(nm = c("green_roof", "infiltration", "retention")), 
     FUN = function(type) {
-      abimo_parameters <- lapply(get_measure_info(type), function(x) {
+      parameters <- lapply(get_measure_info(type), function(x) {
+        input_column <- x[["field_name"]]
         c(
-          list(input_column = x[["field_name"]]),
-          x[["abimo_parameters"]]
+          list(input_column = input_column),
+          if (!is.null(parameters) && length(parameters[[input_column]])) {
+            parameters[[input_column]] 
+          } else {
+            x[["parameters"]]
+          }
         )
       })
-      abimo_parameters[!sapply(abimo_parameters, is.null)]
+      parameters[!sapply(parameters, is.null)]
     }
   )
 }

@@ -6,15 +6,22 @@
 #'   ("green_roof", "pavement", "trees", "infiltration", "retention") for which 
 #'   to filter the output.
 #' @param field_name_only optional. Logical of length one indicating whether or 
-#'   not to return only the "field_name" instead of all info fields per measure
+#'   not to return only the "field_name" instead of all info fields per measure.
+#'   Default is FALSE.
+#' @param parameters_only if TRUE only returns parameters for each measure.
+#'   Default is FALSE.
 #' @export
-get_measure_info <- function(type = character(0), field_name_only = FALSE) {
+get_measure_info <- function(
+    type = character(0),
+    field_name_only = FALSE,
+    parameters_only = FALSE
+) {
   measures <- list(
     list(
       type = "green_roof",
       field_name = "green_roof_ext",
       long_name_de = "Extensive Dachbegr\u00fcnung",
-      abimo_parameters = list(
+      parameters = list(
         bagrov_value = 0.65
       )
     ),
@@ -22,7 +29,7 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
       type = "green_roof",
       field_name = "green_roof_int",
       long_name_de = "Intensive Dachbegr\u00fcnung",
-      abimo_parameters = list(
+      parameters = list(
         bagrov_value = 0.75
       )
     ),
@@ -39,23 +46,32 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
     list(
       type = "trees",
       field_name = "trees_sm",
-      long_name_de = "B\u00e4ume (klein)"
+      long_name_de = "B\u00e4ume (klein)", 
+      parameters = list(
+        tree_volume = 200
+      )
     ),
     list(
       type = "trees",
       field_name = "trees_md",
-      long_name_de = "B\u00e4ume (mittel)"
+      long_name_de = "B\u00e4ume (mittel)", 
+      parameters = list(
+        tree_volume = 300
+      )
     ),
     list(
       type = "trees",
       field_name = "trees_lg",
-      long_name_de = "B\u00e4ume (gro\u00df)"
+      long_name_de = "B\u00e4ume (gro\u00df)", 
+      parameters = list(
+        tree_volume = 400
+      )
     ),
     list(
       type = "infiltration",
       field_name = "to_swale", # "to_inf_mulde"
       long_name_de = "Mulde",
-      abimo_parameters = list(
+      parameters = list(
         evaporation_factor = 0.1,
         overflow_factor = 0.05        
       )
@@ -64,7 +80,7 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
       type = "infiltration",
       field_name = "to_surf_infil",
       long_name_de = "Fl\u00e4chenversickerung",
-      abimo_parameters = list(
+      parameters = list(
         evaporation_factor = 0.15,
         overflow_factor = 0.15
       )
@@ -73,7 +89,7 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
       type = "infiltration",
       field_name = "to_swale_trench", # "to_inf_mulde_rigole"
       long_name_de = "Mulden-Rigolen-Element",
-      abimo_parameters = list(
+      parameters = list(
         evaporation_factor = 0.08,
         overflow_factor = 0.1
       )
@@ -82,7 +98,7 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
       type = "infiltration",
       field_name = "to_tree_pit",
       long_name_de = "Optimierter Baumstandort",
-      abimo_parameters = list(
+      parameters = list(
         evaporation_factor = 0.2,
         overflow_factor = 0.15
       )
@@ -91,7 +107,7 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
       type = "infiltration",
       field_name = "to_trench",
       long_name_de = "Rigole",
-      abimo_parameters = list(
+      parameters = list(
         evaporation_factor = 0.15,
         overflow_factor = 0.15
       )
@@ -100,7 +116,7 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
       type = "retention",
       field_name = "to_cistern", # "to_retention"
       long_name_de = "Zisterne", # (= Regentonne)
-      abimo_parameters = list(
+      parameters = list(
         overflow_factor = 0.5
       )
     )
@@ -109,6 +125,7 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
   collect <- function(x, field) {
     sapply(x, `[[`, field)
   }
+  # filter for type if type is given
   if (length(type) > 0L) {
     allowed_types <- unique(collect(measures, "type"))
     unknown_types <- setdiff(type, allowed_types)
@@ -122,10 +139,15 @@ get_measure_info <- function(type = character(0), field_name_only = FALSE) {
     measures <- measures[collect(measures, "type") %in% type]
   }
   if (field_name_only) {
-    collect(measures, "field_name")
-  } else {
-    measures
+    return(collect(measures, "field_name"))
   }
+  if (parameters_only) {
+    return(stats::setNames(
+      collect(measures, "parameters"),
+      collect(measures, "field_name")
+      ))
+  }
+  measures
 }
 
 #' Get one block (columns as expected by kwb.rabimo) for testing
@@ -183,7 +205,7 @@ rabimo_block_to_partial_areas_m2 <- function(block) {
   current <- cbind(current, as.data.frame(as.list(
     stats::setNames(rep(0, length(measures)), measures)
   )))
-
+  
   # recalculate `pvd`, `sealed`, `unsealed`
   current <- update_calculated_fields(current)
   
@@ -257,10 +279,10 @@ apply_measure <- function(areas, measure) {
   if (!name %in% get_measure_info(field_name_only = TRUE)) {
     stop(sprintf("Measure '%s' not supported!", name))
   }
-
+  
   # Add the area of the measure to area that is already allocated to the measure
   areas[[name]] <- areas[[name]] + measure[["area"]]
-
+  
   # Only measures related to paving need special treatment ("accordeon"):
   if (name == "unpaving") {
     
