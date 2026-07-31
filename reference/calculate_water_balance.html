@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kwb.smartwater</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,7 +39,13 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calculate_water_balance</span><span class="op">(</span><span class="va">blocks</span>, <span class="va">measures</span>, convert_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calculate_water_balance</span><span class="op">(</span></span>
+<span>  <span class="va">blocks</span>,</span>
+<span>  <span class="va">measures</span>,</span>
+<span>  parameters <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  convert_types <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  max_veg_class <span class="op">=</span> <span class="fl">80</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -58,9 +64,23 @@ measure-related fields must correspond to the <code>field_name</code>s returned
 by <code><a href="get_measure_info.html">get_measure_info</a></code>.</p></dd>
 
 
+<dt id="arg-parameters">parameters<a class="anchor" aria-label="anchor" href="#arg-parameters"></a></dt>
+<dd><p>optional. List of parameters for each measure for which
+parameter values shall be overridden. Its format should refer to the format
+of the list returned by <code><a href="get_measure_info.html">get_measure_info</a>(parameters_only =
+  TRUE)</code>.</p></dd>
+
+
 <dt id="arg-convert-types">convert_types<a class="anchor" aria-label="anchor" href="#arg-convert-types"></a></dt>
 <dd><p>logical value indicating whether or not to convert the
 data types in the <code>blocks</code> data frame as required by R-ABIMO.</p></dd>
+
+
+<dt id="arg-max-veg-class">max_veg_class<a class="anchor" aria-label="anchor" href="#arg-max-veg-class"></a></dt>
+<dd><p>maximum vegetation class value. When increasing the
+vegetation class index in order to consider tree measures, the resulting
+vegetation class index of a block will be limited to this value. The
+default is 80.</p></dd>
 
 </dl></div>
 

@@ -9,7 +9,7 @@ kwb.smartwater"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">kwb.smartwater</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,7 +42,11 @@ kwb.smartwater</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_measure_info</span><span class="op">(</span>type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>, field_name_only <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_measure_info</span><span class="op">(</span></span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  field_name_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  parameters_only <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -57,7 +61,13 @@ to filter the output.</p></dd>
 
 <dt id="arg-field-name-only">field_name_only<a class="anchor" aria-label="anchor" href="#arg-field-name-only"></a></dt>
 <dd><p>optional. Logical of length one indicating whether or
-not to return only the "field_name" instead of all info fields per measure</p></dd>
+not to return only the "field_name" instead of all info fields per measure.
+Default is FALSE.</p></dd>
+
+
+<dt id="arg-parameters-only">parameters_only<a class="anchor" aria-label="anchor" href="#arg-parameters-only"></a></dt>
+<dd><p>if TRUE only returns parameters for each measure.
+Default is FALSE.</p></dd>
 
 </dl></div>
 

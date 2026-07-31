@@ -14,7 +14,7 @@
   : Get one block (columns as expected by kwb.rabimo) for testing
 - [`get_test_block_measures()`](https://kwb-r.github.io/kwb.smartwater/reference/get_test_block_measures.md)
   : Get measures for testing
-- [`n_trees_to_veg_class_increment()`](https://kwb-r.github.io/kwb.smartwater/reference/n_trees_to_veg_class_increment.md)
+- [`get_veg_class_increment()`](https://kwb-r.github.io/kwb.smartwater/reference/get_veg_class_increment.md)
   : Vegetation Class Increment Caused by Planting Trees
 - [`plot_effect_of_disconnect()`](https://kwb-r.github.io/kwb.smartwater/reference/plot_effect_of_disconnect.md)
   : Plot Effect of Disconnecting Surfaces from Sewer System

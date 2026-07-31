@@ -6,7 +6,11 @@ kwb.smartwater
 ## Usage
 
 ``` r
-get_measure_info(type = character(0), field_name_only = FALSE)
+get_measure_info(
+  type = character(0),
+  field_name_only = FALSE,
+  parameters_only = FALSE
+)
 ```
 
 ## Arguments
@@ -20,4 +24,9 @@ get_measure_info(type = character(0), field_name_only = FALSE)
 - field_name_only:
 
   optional. Logical of length one indicating whether or not to return
-  only the "field_name" instead of all info fields per measure
+  only the "field_name" instead of all info fields per measure. Default
+  is FALSE.
+
+- parameters_only:
+
+  if TRUE only returns parameters for each measure. Default is FALSE.
