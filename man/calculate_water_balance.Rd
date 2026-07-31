@@ -21,7 +21,7 @@ in m2. Each row refers to a block area, linked by the text field
 measure-related fields must correspond to the \code{field_name}s returned
 by \code{\link{get_measure_info}}.}
 
-\item{parameters}{optional.List of parameters for each measure for which
+\item{parameters}{optional. List of parameters for each measure for which
 parameter values shall be overridden. Its format should refer to the format
 of the list returned by \code{\link{get_measure_info}(parameters_only =
   TRUE)}.}

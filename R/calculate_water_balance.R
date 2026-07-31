@@ -6,7 +6,7 @@
 #'   \code{code}. There is one numeric field per measure. The names of the
 #'   measure-related fields must correspond to the \code{field_name}s returned 
 #'   by \code{\link{get_measure_info}}.
-#' @param parameters optional.List of parameters for each measure for which
+#' @param parameters optional. List of parameters for each measure for which
 #'   parameter values shall be overridden. Its format should refer to the format
 #'   of the list returned by \code{\link{get_measure_info}(parameters_only =
 #'   TRUE)}.
