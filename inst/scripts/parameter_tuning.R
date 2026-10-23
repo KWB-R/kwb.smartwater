@@ -70,7 +70,11 @@ lapply(percentage_evaporation, bagrov_for_evaporation)
 # the height. When a new new tree is set in a block as a measure, the 
 # corresponding increment of the veg_class is calculated. Tree measures come
 # in three sizes: small, medium, large.
-
+#
+# See also inst/scripts/vegetation_class_increment.R where we demonstrate the
+# calculation from green volume to vegetation class and vice versa. We decided
+# to keep the simple approach with a linear instead of an exponential relation.
+#
 # small tree: 150 m³
 # medium tree: 700 m³
 # large tree: 2300 m³
