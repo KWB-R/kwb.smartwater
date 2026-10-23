@@ -1,7 +1,8 @@
 #' Get info on the measures supported by kwb.smartwater
 #' 
 #' Get information on the rainwater management measures supported by 
-#' kwb.smartwater
+#' kwb.smartwater.
+#' 
 #' @param type optional. Vector of character indicating the measure types 
 #'   ("green_roof", "pavement", "trees", "infiltration", "retention") for which 
 #'   to filter the output.
@@ -22,7 +23,7 @@ get_measure_info <- function(
       field_name = "green_roof_ext",
       long_name_de = "Extensive Dachbegr\u00fcnung",
       parameters = list(
-        bagrov_value = 0.65
+        bagrov_value = 0.95
       )
     ),
     list(
@@ -30,7 +31,7 @@ get_measure_info <- function(
       field_name = "green_roof_int",
       long_name_de = "Intensive Dachbegr\u00fcnung",
       parameters = list(
-        bagrov_value = 0.75
+        bagrov_value = 3.5
       )
     ),
     list(
@@ -48,7 +49,7 @@ get_measure_info <- function(
       field_name = "trees_sm",
       long_name_de = "B\u00e4ume (klein)", 
       parameters = list(
-        tree_volume = 200
+        tree_volume = 150
       )
     ),
     list(
@@ -56,7 +57,7 @@ get_measure_info <- function(
       field_name = "trees_md",
       long_name_de = "B\u00e4ume (mittel)", 
       parameters = list(
-        tree_volume = 300
+        tree_volume = 700
       )
     ),
     list(
@@ -64,9 +65,7 @@ get_measure_info <- function(
       field_name = "trees_lg",
       long_name_de = "B\u00e4ume (gro\u00df)", 
       parameters = list(
-        # 440 m3 determined for Bayerischer Platz, Berlin, rounded down to 
-        # nearest multiple of 100
-        tree_volume = 400 
+        tree_volume = 2300 
       )
     ),
     list(
@@ -74,8 +73,8 @@ get_measure_info <- function(
       field_name = "to_swale", # "to_inf_mulde"
       long_name_de = "Mulde",
       parameters = list(
-        evaporation_factor = 0.1,
-        overflow_factor = 0.05        
+        evaporation_factor = 0.14,
+        overflow_factor = 0.0        
       )
     ),
     list(
@@ -83,8 +82,8 @@ get_measure_info <- function(
       field_name = "to_surf_infil",
       long_name_de = "Fl\u00e4chenversickerung",
       parameters = list(
-        evaporation_factor = 0.15,
-        overflow_factor = 0.15
+        evaporation_factor = 0.33,
+        overflow_factor = 0.0
       )
     ),
     list(
@@ -92,8 +91,8 @@ get_measure_info <- function(
       field_name = "to_swale_trench", # "to_inf_mulde_rigole"
       long_name_de = "Mulden-Rigolen-Element",
       parameters = list(
-        evaporation_factor = 0.08,
-        overflow_factor = 0.1
+        evaporation_factor = 0.07,
+        overflow_factor = 0.0
       )
     ),
     list(
@@ -101,8 +100,8 @@ get_measure_info <- function(
       field_name = "to_tree_pit",
       long_name_de = "Optimierter Baumstandort",
       parameters = list(
-        evaporation_factor = 0.2,
-        overflow_factor = 0.15
+        evaporation_factor = 0.30,
+        overflow_factor = 0.0
       )
     ),  
     list(
@@ -110,8 +109,8 @@ get_measure_info <- function(
       field_name = "to_trench",
       long_name_de = "Rigole",
       parameters = list(
-        evaporation_factor = 0.15,
-        overflow_factor = 0.15
+        evaporation_factor = 0.0,
+        overflow_factor = 0.0
       )
     ),
     list(
@@ -119,7 +118,7 @@ get_measure_info <- function(
       field_name = "to_cistern", # "to_retention"
       long_name_de = "Zisterne", # (= Regentonne)
       parameters = list(
-        overflow_factor = 0.5
+        overflow_factor = 0.6
       )
     )
   )
