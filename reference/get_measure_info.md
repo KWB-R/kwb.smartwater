@@ -1,7 +1,7 @@
 # Get info on the measures supported by kwb.smartwater
 
 Get information on the rainwater management measures supported by
-kwb.smartwater
+kwb.smartwater.
 
 ## Usage
 

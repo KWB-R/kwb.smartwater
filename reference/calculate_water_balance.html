@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kwb.smartwater</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +68,7 @@ by <code><a href="get_measure_info.html">get_measure_info</a></code>.</p></dd>
 <dd><p>optional. List of parameters for each measure for which
 parameter values shall be overridden. Its format should refer to the format
 of the list returned by <code><a href="get_measure_info.html">get_measure_info</a>(parameters_only =
-  TRUE)</code>.</p></dd>
+TRUE)</code>.</p></dd>
 
 
 <dt id="arg-convert-types">convert_types<a class="anchor" aria-label="anchor" href="#arg-convert-types"></a></dt>
@@ -83,6 +83,13 @@ vegetation class index of a block will be limited to this value. The
 default is 80.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Set the environment variable "SMARTWATER_TREES_LINEAR" to "FALSE" if you want
+to use the exponential relationship between the green volume of trees and
+their assumed effect on the vegetation class index. By default, a simple
+linear relationship is used.</p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

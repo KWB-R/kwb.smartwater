@@ -48,3 +48,10 @@ calculate_water_balance(
   index in order to consider tree measures, the resulting vegetation
   class index of a block will be limited to this value. The default is
   80.
+
+## Details
+
+Set the environment variable "SMARTWATER_TREES_LINEAR" to "FALSE" if you
+want to use the exponential relationship between the green volume of
+trees and their assumed effect on the vegetation class index. By
+default, a simple linear relationship is used.
