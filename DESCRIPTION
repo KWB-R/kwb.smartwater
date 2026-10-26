@@ -21,6 +21,7 @@ Suggests:
     covr,
     ggplot2,
     plumber2,
+    rlang,
     testthat (>= 3.0.0)
 Remotes:
     github::kwb-r/kwb.rabimo@v2.2.0,

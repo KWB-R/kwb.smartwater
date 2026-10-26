@@ -11,6 +11,13 @@ plot_effect_of_trees <- function(
     n_trees = 0:100
 ) {
   
+  if (! requireNamespace("ggplot2", quietly = TRUE) || 
+      ! requireNamespace("rlang", quietly = TRUE)) {
+    stop("Please install ggplot2: install.packages('ggplot2')")
+  }
+  
+  .data <- rlang::.data
+  
   # unsealed area within the block
   unsealed <- function(block) {
     with(block, (1 - roof - pvd) * total_area)
@@ -48,16 +55,11 @@ plot_effect_of_trees <- function(
     )
   }))
   
-  x_var <- "n_trees"
-  y_var <- "veg_class"
-  col_var <- "tree_size"
-  pch_var <- "use_linear_relation"
-  
-  ggplot2::ggplot(data, ggplot2::aes_string(
-    x = !!x_var, 
-    y = !!y_var, 
-    col = !!col_var,
-    pch = !!pch_var
+  ggplot2::ggplot(data, ggplot2::aes(
+    x = .data$n_trees, 
+    y = .data$veg_class, 
+    col = .data$tree_size,
+    pch = .data$use_linear_relation
   )) + 
     ggplot2::geom_point() +
     ggplot2::theme_minimal() +
