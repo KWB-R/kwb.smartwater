@@ -24,5 +24,5 @@ Default is FALSE.}
 }
 \description{
 Get information on the rainwater management measures supported by
-kwb.smartwater
+kwb.smartwater.
 }

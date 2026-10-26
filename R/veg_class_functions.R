@@ -23,6 +23,27 @@ get_tree_measure_volume <- function(block_measures, parameters = NULL) {
   }))
 }
 
+recalculate_vegetation_class <- function(
+    old_veg_class, 
+    tree_measure_volume, 
+    unsealed_area_m2,
+    max_veg_class,
+    use_linear_relation = TRUE
+) {
+  
+  if (use_linear_relation) {
+    increment <- get_veg_class_increment(tree_measure_volume, unsealed_area_m2)
+    new_veg_class <- old_veg_class + increment
+    return(min(new_veg_class, max_veg_class))
+  }
+  
+  old_veg_class + get_veg_class_increment_2(
+    tree_measure_volume = tree_measure_volume, 
+    unsealed_area_m2 = unsealed_area_m2, 
+    veg_class = old_veg_class,
+    max_vegetation_class = max_veg_class
+  )
+}
 
 #' Vegetation Class Increment Caused by Planting Trees
 #' 
@@ -44,3 +65,63 @@ get_veg_class_increment <- function(
   m * tree_measure_volume / unsealed_area_m2 
 }
 
+MAX_VEGETATION_CLASS <- 75
+EXPONENT <- 1.23
+SOURCE_MAX <- 28.3
+TARGET_MAX <- 55
+
+#' Alternative Version of get_veg_class_increment()
+#' 
+#' @param tree_measure_volume added green volume (m3)
+#' @param unsealed_area_m2 unsealed area (m2)
+#' @param veg_class current vegetation class
+#' @param max_vegetation_class Default: 75
+#' @param exponent Default: 1.23
+#' @param source_max maximum veg_norm value. Default: 28.3 (found in Berlin data)
+#' @param target_max maximum veg_class value. Default: 55 (found in Berlin data,
+#'   for non-forested areas)
+get_veg_class_increment_2 <- function(
+    tree_measure_volume, 
+    unsealed_area_m2, 
+    veg_class,
+    max_vegetation_class = MAX_VEGETATION_CLASS,
+    exponent = EXPONENT,
+    source_max = SOURCE_MAX,
+    target_max = TARGET_MAX
+) {
+  veg_norm_old <- veg_class_to_veg_norm(
+    veg_class, max_vegetation_class, exponent, source_max, target_max
+  )
+  
+  green_volume_old <- veg_norm_old * unsealed_area_m2
+  green_volume_new <- green_volume_old + tree_measure_volume
+  veg_norm_new <- green_volume_new / unsealed_area_m2
+  
+  veg_norm_to_veg_class(
+    veg_norm_new, max_vegetation_class, exponent, source_max, target_max
+  ) - veg_class
+}
+
+# convert veg_class to veg_norm
+veg_class_to_veg_norm <- function(
+    veg_class, 
+    max_vegetation_class = MAX_VEGETATION_CLASS,
+    exponent = EXPONENT,
+    source_max = SOURCE_MAX,
+    target_max = TARGET_MAX
+) {
+  stopifnot(all(veg_class <= max_vegetation_class))
+  veg_class^(1/exponent) / target_max * source_max
+}
+
+# convert veg_norm to veg_class
+veg_norm_to_veg_class <- function(
+    veg_norm, 
+    max_vegetation_class = MAX_VEGETATION_CLASS,
+    exponent = EXPONENT,
+    source_max = SOURCE_MAX,
+    target_max = TARGET_MAX
+) {
+  rescaled <- veg_norm / source_max * target_max
+  pmin(rescaled^exponent, max_vegetation_class)
+}
