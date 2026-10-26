@@ -1,3 +1,7 @@
+## kwb.smartwater v0.5.0 (2026-10-26)
+
+New function: plot_effect_of_trees()
+
 ## kwb.smartwater v0.4.0 (2026-10-23)
 
 The default model parameters have been adapted:

@@ -1,5 +1,11 @@
 #' Calculate Water Balance for Given Block Areas and Measures
-
+#' 
+#' @details
+#' Set the environment variable "SMARTWATER_TREES_LINEAR" to "FALSE" if you want
+#' to use the exponential relationship between the green volume of trees and 
+#' their assumed effect on the vegetation class index. By default, a simple 
+#' linear relationship is used.
+#' 
 #' @param blocks data.frame as returned by \code{\link{get_test_blocks}}
 #' @param measures data.frame containing information about the planned measures
 #'   in m2. Each row refers to a block area, linked by the text field
@@ -105,15 +111,15 @@ calculate_water_balance <- function(
       }
       
       # tree measures
-      veg_class_increment <- get_veg_class_increment(
+      block$veg_class <- recalculate_vegetation_class(
+        old_veg_class = block$veg_class, 
         tree_measure_volume = get_tree_measure_volume(block_measures, parameters),
-        unsealed_area_m2 = areas_m2$unsealed
+        unsealed_area_m2 = areas_m2$unsealed,
+        max_veg_class = max_veg_class,
+        use_linear_relation = as.logical(
+          Sys.getenv("SMARTWATER_TREES_LINEAR", "TRUE")
+        )
       )
-      block$veg_class <- min(
-        block$veg_class + veg_class_increment, 
-        max_veg_class
-      )
-      
     }
     
     # Calculate m2 back into percentages

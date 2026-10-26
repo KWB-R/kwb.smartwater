@@ -24,7 +24,7 @@ by \code{\link{get_measure_info}}.}
 \item{parameters}{optional. List of parameters for each measure for which
 parameter values shall be overridden. Its format should refer to the format
 of the list returned by \code{\link{get_measure_info}(parameters_only =
-  TRUE)}.}
+TRUE)}.}
 
 \item{convert_types}{logical value indicating whether or not to convert the
 data types in the \code{blocks} data frame as required by R-ABIMO.}
@@ -36,4 +36,10 @@ default is 80.}
 }
 \description{
 Calculate Water Balance for Given Block Areas and Measures
+}
+\details{
+Set the environment variable "SMARTWATER_TREES_LINEAR" to "FALSE" if you want
+to use the exponential relationship between the green volume of trees and
+their assumed effect on the vegetation class index. By default, a simple
+linear relationship is used.
 }
